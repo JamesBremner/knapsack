@@ -33,6 +33,8 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="../../src/DDP.cpp" />
+		<Unit filename="../../src/DDPTest.cpp" />
+		<Unit filename="../../src/knapsack.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
