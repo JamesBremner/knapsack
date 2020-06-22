@@ -1,6 +1,6 @@
 // knapsack.h contains declarations for functions implementing knapsack algorithms
 
-/** discretization points
+/** discretization points ( (positions where guillotine cutting can be performed)
     @param[in] D knapsack capacity
     @param[in] d vector of item weights
 
@@ -23,3 +23,22 @@ std::vector<int> DDP(
     int D,
     std::vector<int>& d );
 
+std::vector<int> RRP(
+    int D,
+    std::vector<int>& d );
+
+/** dynamic programming for the three-dimensional unbounded knapsack
+    @param[in] L length of bin
+    @param[in] W width of bin
+    @param[in] H height of bin
+    @param[in] l lengths of items
+    @param[in] w width of items
+    @param[in] h heights of items
+    @param[in] v values of items
+*/
+void DP3UK (
+    int L, int W, int H,
+    std::vector<int>& l,
+    std::vector<int>& w,
+    std::vector<int>& h,
+    std::vector<int>& v);
