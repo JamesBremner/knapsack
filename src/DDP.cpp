@@ -24,12 +24,9 @@ std::vector<int> DDP(
 
     std::vector<int> P;          // calculated discretization points
 
-    D = 10;
-    d  = { 1,2,3,4 };
+    std::vector<int> c( D );
 
-    std::vector<int> c( d.size() );
-
-    for( int i = 0; i < (int)d.size(); i++ )
+    for( int i = 1; i < (int)d.size(); i++ )
     {
         for( int j = d[i]; j < D; j++ )
         {
@@ -37,7 +34,7 @@ std::vector<int> DDP(
                 c[ j ] = c[ j - d[i] ] + d[ i ];
         }
     }
-    for( int j = 0; j < D; j++ )
+    for( int j = 1; j <= D; j++ )
     {
         if( c[ j ] == j )
             P.push_back( j );
@@ -50,8 +47,8 @@ int main()
 {
     cout << "DDP" << endl;
 
-    int D = 10;
-    std::vector<int> d  = { 1,2,3,4 };
+    int D = 3;
+    std::vector<int> d  = { 1,2 };
 
     std::vector<int> P = DDP( D, d );
 
