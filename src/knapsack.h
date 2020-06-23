@@ -1,5 +1,7 @@
 // knapsack.h contains declarations for functions implementing knapsack algorithms
 
+#include <string>
+
 /** discretization points ( (positions where guillotine cutting can be performed)
     @param[in] D knapsack capacity
     @param[in] d vector of item weights
@@ -27,6 +29,26 @@ std::vector<int> RRP(
     int D,
     std::vector<int>& d );
 
+/// A problem instance
+struct sInstance
+{
+    std::vector<int> item_values;
+};
+
+/// A solution pattern
+struct sPattern
+{
+    sInstance instance;
+    int lCount, wCount, hCount;
+    std::vector<std::vector<std::vector<int> > > value;
+    std::vector<std::vector<std::vector<int> > > position;
+    std::vector<std::vector<std::vector<int> > > item;
+    std::vector<std::vector<std::vector<int> > > direction;
+    std::vector<int> l_raster, w_raster, h_raster;
+
+    std::string text() const;
+};
+
 /** dynamic programming for the three-dimensional unbounded knapsack
     @param[in] L length of bin
     @param[in] W width of bin
@@ -34,11 +56,11 @@ std::vector<int> RRP(
     @param[in] l lengths of items
     @param[in] w width of items
     @param[in] h heights of items
-    @param[in] v values of items
+    @param[in] problem instance
 */
-void DP3UK (
+sPattern DP3UK (
     int L, int W, int H,
     std::vector<int>& l,
     std::vector<int>& w,
     std::vector<int>& h,
-    std::vector<int>& v);
+    sInstance& problem );
