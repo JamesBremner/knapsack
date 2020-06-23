@@ -4,13 +4,15 @@
 #include "knapsack.h"
 
 sPattern DP3UK (
-    int L, int W, int H,
     std::vector<int>& l,
     std::vector<int>& w,
     std::vector<int>& h,
     sInstance& problem )
 {
     // populate variables used by pseudo code
+    int L = problem.bin[0];
+    int W = problem.bin[1];
+    int H = problem.bin[2];
     std::vector<int> v = problem.item_values;
 
     // Calulate raster points
@@ -82,13 +84,18 @@ sPattern DP3UK (
         {
             for( int k = 0; k < u; k++ )
             {
+                std::cout << "\nijk " << i <<" "<< j <<" "<< k  << "\n";
                 // avoid generating symmetric patterns by considering, in each direction,
                 // r-points up to half of the size of the respective bin
                 int nn = -1;
                 for( int d = 0; d <= i; d++ )
                 {
+                    std::cout << "Phat " << i <<" " << d <<" "<< Phat[i] <<" " << Phat[d] << "\n";
                     if( Phat[d] <= Phat[i] / 2 )
+                    {
                         nn = d;
+                        std::cout << "=> nn " << nn << "\n";
+                    }
                 }
                 for( int x = 0; x <= nn; x++ )
                 {
@@ -99,7 +106,7 @@ sPattern DP3UK (
                             t = d;
                     }
                     // Does vertical cut at Phat[x] improve value of solution
-                    if( pos[t][j][k] != nil )
+                    if( pos[x][j][k] != nil )
                         continue;               // there is already a cut here
 
                     if( G[i][j][k] < G[x][j][k]+G[t][j][k] )
@@ -210,9 +217,10 @@ std::string sPattern::text() const
             }
         }
     }
-    if( ! totalCuts ) {
+    if( ! totalCuts )
+    {
         ss << "\nno cuts found\n"
-            << "Probably means that items were too big for bin\n";
+           << "Probably means that items were too big for bin\n";
         return ss.str();
     }
 

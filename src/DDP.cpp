@@ -3,7 +3,7 @@
 
 std::vector<int> DDP(
     int D,
-    std::vector<int>& d )
+    const std::vector<int>& d )
 {
     /*
     Algorithm 2.2 DDP

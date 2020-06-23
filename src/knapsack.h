@@ -23,15 +23,16 @@ j has optimal value j.
 */
 std::vector<int> DDP(
     int D,
-    std::vector<int>& d );
+    const std::vector<int>& d );
 
 std::vector<int> RRP(
     int D,
-    std::vector<int>& d );
+    const std::vector<int>& d );
 
 /// A problem instance
 struct sInstance
 {
+    std::vector<int> bin;
     std::vector<int> item_values;
 };
 
@@ -50,16 +51,12 @@ struct sPattern
 };
 
 /** dynamic programming for the three-dimensional unbounded knapsack
-    @param[in] L length of bin
-    @param[in] W width of bin
-    @param[in] H height of bin
     @param[in] l lengths of items
     @param[in] w width of items
     @param[in] h heights of items
     @param[in] problem instance
 */
 sPattern DP3UK (
-    int L, int W, int H,
     std::vector<int>& l,
     std::vector<int>& w,
     std::vector<int>& h,
