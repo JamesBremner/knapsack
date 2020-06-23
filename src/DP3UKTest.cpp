@@ -43,12 +43,12 @@ void test2()
     sInstance problem;
 
     // single 5 unit cube item type
-    std::vector<int> l  = { 5 };
-    std::vector<int> w  = { 5 };
-    std::vector<int> h  = { 5 };
+    std::vector<int> l  = { 4 };
+    std::vector<int> w  = { 4 };
+    std::vector<int> h  = { 4 };
 
     // 10 unit cube bin
-    problem.bin = std::vector<int>(3,10);
+    problem.bin = std::vector<int>(3,12);
 
     problem.item_values = { 5 };
 
@@ -84,7 +84,7 @@ int main()
 {
     std::cout << "DP3UK\n";
 
-    testRRP();
+    //testRRP();
     // test1();
     test2();
     //test3();

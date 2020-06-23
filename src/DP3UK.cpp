@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <set>
 #include "knapsack.h"
 
 sPattern DP3UK (
@@ -84,17 +85,16 @@ sPattern DP3UK (
         {
             for( int k = 0; k < u; k++ )
             {
-                std::cout << "\nijk " << i <<" "<< j <<" "<< k  << "\n";
+                //std::cout << "\nijk " << i <<" "<< j <<" "<< k  << "\n";
+
                 // avoid generating symmetric patterns by considering, in each direction,
                 // r-points up to half of the size of the respective bin
                 int nn = -1;
                 for( int d = 0; d <= i; d++ )
                 {
-                    std::cout << "Phat " << i <<" " << d <<" "<< Phat[i] <<" " << Phat[d] << "\n";
                     if( Phat[d] <= Phat[i] / 2 )
                     {
                         nn = d;
-                        std::cout << "=> nn " << nn << "\n";
                     }
                 }
                 for( int x = 0; x <= nn; x++ )
@@ -111,8 +111,8 @@ sPattern DP3UK (
 
                     if( G[i][j][k] < G[x][j][k]+G[t][j][k] )
                     {
-                        std::cout << "vertical cut\n";
-                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << "\n";
+                        std::cout << "vertical cut ";
+                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << " ";
                         std::cout << x <<" "<< t <<" "<< G[i][j][k] << "<" << G[x][j][k] << "+"<<G[t][j][k] << "\n";
 
                         G[i][j][k] = G[x][j][k]+G[t][j][k];
@@ -140,8 +140,8 @@ sPattern DP3UK (
                         continue;               // there is already a cut here
                     if( G[i][j][k] < G[i][y][k]+G[i][t][k] )
                     {
-                        std::cout << "depth cut\n";
-                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << "\n";
+                        std::cout << "depth cut ";
+                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << " ";
                         std::cout  << y <<" "<< t <<" "<< G[i][j][k] << "<" << G[y][j][k] << "+"<<G[t][j][k] << "\n";
 
                         G[i][j][k] = G[i][y][k]+G[i][y][k];
@@ -168,8 +168,8 @@ sPattern DP3UK (
                         continue;               // there is already a cut here
                     if( G[i][j][k] < G[i][j][z]+G[i][j][t] )
                     {
-                        std::cout << "horizontal cut\n";
-                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << "\n";
+                        std::cout << "horizontal cut ";
+                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << " ";
                         std::cout  << z <<" "<< t <<" "<< G[i][j][k] << "<" << G[z][j][k] << "+"<<G[t][j][k] << "\n";
 
                         G[i][j][k] = G[i][j][z]+G[i][j][t];
@@ -224,7 +224,16 @@ std::string sPattern::text() const
         return ss.str();
     }
 
-    ss << "Vertical cuts at ";
+    /* extract all unique vertical cuts.
+
+    The result contains multiple cuts at each location.
+    I do not think it is a bug in my code.
+    Perhaps the algorithm designer considers this OK?
+    Anyway, there seems little harm is using a set to filter out duplicates
+    so we can just display the unique cut locations
+
+    */
+    std::set<int> cutset;
     for( int il = 0; il < lCount; il++ )
     {
         for( int iw = 0; iw < wCount; iw++ )
@@ -232,11 +241,20 @@ std::string sPattern::text() const
             for( int ih = 0; ih < hCount; ih++ )
             {
                 if( direction[il][iw][ih] == 1 )
-                    ss << position[il][iw][ih] << " ";
+                {
+                    cutset.insert( position[il][iw][ih] );
+                }
             }
         }
     }
-    ss << "\nDepth Cuts at ";
+    ss << "Vertical cuts at ";
+    for( int c : cutset )
+    {
+        ss << c << " ";
+    }
+    ss << "\n";
+    cutset.clear();
+
     for( int il = 0; il < lCount; il++ )
     {
         for( int iw = 0; iw < wCount; iw++ )
@@ -244,11 +262,18 @@ std::string sPattern::text() const
             for( int ih = 0; ih < hCount; ih++ )
             {
                 if( direction[il][iw][ih] == 2 )
-                    ss << position[il][iw][ih] << " ";
+                    cutset.insert( position[il][iw][ih] );
             }
         }
     }
-    ss << "\nHorizontal Cuts at ";
+    ss << "Depth cuts at ";
+    for( int c : cutset )
+    {
+        ss << c << " ";
+    }
+    ss << "\n";
+    cutset.clear();
+
     for( int il = 0; il < lCount; il++ )
     {
         for( int iw = 0; iw < wCount; iw++ )
@@ -256,10 +281,17 @@ std::string sPattern::text() const
             for( int ih = 0; ih < hCount; ih++ )
             {
                 if( direction[il][iw][ih] == 3 )
-                    ss << position[il][iw][ih] << " ";
+                    cutset.insert( position[il][iw][ih] );
             }
         }
     }
+    ss << "Horizontal cuts at ";
+    for( int c : cutset )
+    {
+        ss << c << " ";
+    }
+    ss << "\n";
+    cutset.clear();
 
     int itemCount = 0;
     int totalValue = 0;
