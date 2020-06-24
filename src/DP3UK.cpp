@@ -47,49 +47,49 @@ sPattern DP3UK (
     std::vector<std::vector<std::vector<int> > >    guil(m,G2);     // the cut orientation
     std::vector<std::vector<std::vector<int> > >    pos(m,G2);      // the cut position
 
-    for( int i = 0; i < m; i++ )
+    for( int ilength = 0; ilength < m; ilength++ )
     {
-        for( int j = 0; j < s; j++ )
+        for( int iwidth = 0; iwidth < s; iwidth++ )
         {
-            for( int k = 0; k < u; k++ )
+            for( int iheight = 0; iheight < u; iheight++ )
             {
                 // loop over the items
                 for( int d = 0; d < (int)v.size(); d++ )
                 {
-                    if( l[d] <= Phat[i] &&
-                            w[d] <= Qhat[j] &&
-                            h[d] <= Rhat[k] )
+                    if( l[d] <= Phat[ilength] &&
+                            w[d] <= Qhat[iwidth] &&
+                            h[d] <= Rhat[iheight] )
                     {
                         // the item is small enough to fit
 
                         // does it have greater value than previous fitted items?
-                        if( v[d] > G[i][j][k] )
+                        if( v[d] > G[ilength][iwidth][iheight] )
                         {
-                            G[i][j][k] = v[d];
-                            item[i][j][k] = d;
-                            guil[i][j][k] = (int) eCut::nil;
+                            G[ilength][iwidth][iheight] = v[d];
+                            item[ilength][iwidth][iheight] = d;
+                            guil[ilength][iwidth][iheight] = (int) eCut::nil;
                         }
                     }
                 }
                 std::cout << "Most valuable item in ( "
-                          << Phat[i] <<" "<< Qhat[j] <<" "<< Rhat[k] <<" ) has value "<< G[i][j][k] << "\n";
+                          << Phat[ilength] <<" "<< Qhat[iwidth] <<" "<< Rhat[iheight] <<" ) has value "<< G[ilength][iwidth][iheight] << "\n";
             }
         }
     }
-    for( int i = 0; i < m; i++ )
+    for( int ilength = 0; ilength < m; ilength++ )
     {
-        for( int j = 0; j < s; j++ )
+        for( int iwidth = 0; iwidth < s; iwidth++ )
         {
-            for( int k = 0; k < u; k++ )
+            for( int iheight = 0; iheight < u; iheight++ )
             {
-                //std::cout << "\nijk " << i <<" "<< j <<" "<< k  << "\n";
+                //std::cout << "\nijk " << ilength <<" "<< iwidth <<" "<< iheight  << "\n";
 
                 // avoid generating symmetric patterns by considering, in each direction,
                 // r-points up to half of the size of the respective bin
                 int nn = -1;
-                for( int d = 0; d <= i; d++ )
+                for( int d = 0; d <= ilength; d++ )
                 {
-                    if( Phat[d] <= Phat[i] / 2 )
+                    if( Phat[d] <= Phat[ilength] / 2 )
                     {
                         nn = d;
                     }
@@ -99,30 +99,30 @@ sPattern DP3UK (
                     int t = 0;
                     for( int d = 0; d < m; d++ )
                     {
-                        if( Phat[d] <= Phat[i] - Phat[x] )
+                        if( Phat[d] <= Phat[ilength] - Phat[x] )
                             t = d;
                     }
                     // Does vertical cut at Phat[x] improve value of solution
-                    if( pos[x][j][k] != (int) eCut::nil )
+                    if( pos[x][iwidth][iheight] != (int) eCut::nil )
                         continue;               // there is already a cut here
 
-                    if( G[i][j][k] < G[x][j][k]+G[t][j][k] )
+                    if( G[ilength][iwidth][iheight] < G[x][iwidth][iheight]+G[t][iwidth][iheight] )
                     {
                         std::cout << "vertical cut ";
-                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << " ";
-                        std::cout << x <<" "<< t <<" "<< G[i][j][k] << "<" << G[x][j][k] << "+"<<G[t][j][k] << "\n";
+                        std::cout << ilength <<" "<< iwidth <<" "<< iheight  <<" "<< G[ilength][iwidth][iheight] << " ";
+                        std::cout << x <<" "<< t <<" "<< G[ilength][iwidth][iheight] << "<" << G[x][iwidth][iheight] << "+"<<G[t][iwidth][iheight] << "\n";
 
-                        G[i][j][k] = G[x][j][k]+G[t][j][k];
-                        pos[i][j][k] = Phat[x];
-                        guil[i][j][k] = (int) eCut::vert;  // Vertical cut; parallel to yz-plane
+                        G[ilength][iwidth][iheight] = G[x][iwidth][iheight]+G[t][iwidth][iheight];
+                        pos[ilength][iwidth][iheight] = Phat[x];
+                        guil[ilength][iwidth][iheight] = (int) eCut::vert;  // Vertical cut; parallel to yz-plane
 
                     }
                 }
 
                 nn = -1;
-                for( int d = 0; d <= j; d++ )
+                for( int d = 0; d <= iwidth; d++ )
                 {
-                    if( Qhat[d] <= Qhat[j] / 2 )
+                    if( Qhat[d] <= Qhat[iwidth] / 2 )
                         nn = d;
                 }
                 for( int y = 0; y <= nn; y++ )
@@ -130,27 +130,27 @@ sPattern DP3UK (
                     int t = 0;
                     for( int d = 0; d < s; d++ )
                     {
-                        if( Qhat[d] <= Qhat[j] - Qhat[y] )
+                        if( Qhat[d] <= Qhat[iwidth] - Qhat[y] )
                             t = d;
                     }
-                    if( pos[i][t][k] != (int) eCut::nil )
+                    if( pos[ilength][t][iheight] != (int) eCut::nil )
                         continue;               // there is already a cut here
-                    if( G[i][j][k] < G[i][y][k]+G[i][t][k] )
+                    if( G[ilength][iwidth][iheight] < G[ilength][y][iheight]+G[ilength][t][iheight] )
                     {
                         std::cout << "depth cut ";
-                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << " ";
-                        std::cout  << y <<" "<< t <<" "<< G[i][j][k] << "<" << G[y][j][k] << "+"<<G[t][j][k] << "\n";
+                        std::cout << ilength <<" "<< iwidth <<" "<< iheight  <<" "<< G[ilength][iwidth][iheight] << " ";
+                        std::cout  << y <<" "<< t <<" "<< G[ilength][iwidth][iheight] << "<" << G[y][iwidth][iheight] << "+"<<G[t][iwidth][iheight] << "\n";
 
-                        G[i][j][k] = G[i][y][k]+G[i][y][k];
-                        pos[i][j][k] = Qhat[y];
-                        guil[i][j][k] = (int) eCut::depth;  // Depth cut ðvertical; parallel to xy plane
+                        G[ilength][iwidth][iheight] = G[ilength][y][iheight]+G[ilength][y][iheight];
+                        pos[ilength][iwidth][iheight] = Qhat[y];
+                        guil[ilength][iwidth][iheight] = (int) eCut::depth;  // Depth cut ðvertical; parallel to xy plane
                     }
                 }
 
                 nn = -1;
-                for( int d = 0; d <= k; d++ )
+                for( int d = 0; d <= iheight; d++ )
                 {
-                    if( Rhat[d] <= Rhat[k] / 2 )
+                    if( Rhat[d] <= Rhat[iheight] / 2 )
                         nn = d;
                 }
                 for( int z = 0; z <= nn; z++ )
@@ -158,20 +158,20 @@ sPattern DP3UK (
                     int t = 0;
                     for( int d = 0; d < u; d++ )
                     {
-                        if( Rhat[d] <= Rhat[k] - Rhat[z] )
+                        if( Rhat[d] <= Rhat[iheight] - Rhat[z] )
                             t = d;
                     }
-                    if( pos[i][j][t] != (int) eCut::nil )
+                    if( pos[ilength][iwidth][t] != (int) eCut::nil )
                         continue;               // there is already a cut here
-                    if( G[i][j][k] < G[i][j][z]+G[i][j][t] )
+                    if( G[ilength][iwidth][iheight] < G[ilength][iwidth][z]+G[ilength][iwidth][t] )
                     {
                         std::cout << "horizontal cut ";
-                        std::cout << i <<" "<< j <<" "<< k  <<" "<< G[i][j][k] << " ";
-                        std::cout  << z <<" "<< t <<" "<< G[i][j][k] << "<" << G[z][j][k] << "+"<<G[t][j][k] << "\n";
+                        std::cout << ilength <<" "<< iwidth <<" "<< iheight  <<" "<< G[ilength][iwidth][iheight] << " ";
+                        std::cout  << z <<" "<< t <<" "<< G[ilength][iwidth][iheight] << "<" << G[z][iwidth][iheight] << "+"<<G[t][iwidth][iheight] << "\n";
 
-                        G[i][j][k] = G[i][j][z]+G[i][j][t];
-                        pos[i][j][k] = Rhat[z];
-                        guil[i][j][k] = (int) eCut::horz;  // Horizontal cut; parallel to xy plane
+                        G[ilength][iwidth][iheight] = G[ilength][iwidth][z]+G[ilength][iwidth][t];
+                        pos[ilength][iwidth][iheight] = Rhat[z];
+                        guil[ilength][iwidth][iheight] = (int) eCut::horz;  // Horizontal cut; parallel to xy plane
                     }
                 }
             }
