@@ -34,11 +34,11 @@
 			<Add option="-fexceptions" />
 			<Add option="-std=c++17" />
 		</Compiler>
-				<Linker>
-					<Add option="-static-libstdc++" />
-					<Add option="-static-libgcc" />
+		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
 			<Add option="-static" />
-			</Linker>
+		</Linker>
 		<Unit filename="../../src/DDP.cpp" />
 		<Unit filename="../../src/DP3UK.cpp" />
 		<Unit filename="../../src/DP3UKInstance.cpp" />

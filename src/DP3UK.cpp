@@ -16,7 +16,12 @@ sPattern DP3UK (
     std::vector<int> h = problem.h;
     std::vector<int> v = problem.item_values;
 
-    // Calulate raster points
+    /* Calculate discretization points
+
+    In the Queiro paper reduced raster points are used as an optimization.
+    We cannot get this to work correctly, see https://github.com/JamesBremner/knapsack/issues/1
+    So we simply use the discretization points
+    */
     auto Phat = DDP( L, l );
     auto Qhat = DDP( W, w );
     auto Rhat = DDP( H, h );
@@ -34,21 +39,13 @@ sPattern DP3UK (
         std::cout << p << " ";
     std::cout << "\n";
 
-    /* Store in G[i, j, k] for each bin of dimension (pi, qj, rk),
-     with pi AP ~ , qj AQ ~ and rk AR ~ , the maximum value of a box
-    that can be cut in such a bin. */
+    // set up some 3D vectors for storing results
     std::vector<int>                                G1(u,0);
     std::vector<std::vector<int>  >                 G2(s,G1);
-    std::vector<std::vector<std::vector<int> > >    G(m,G2);
-    std::vector<std::vector<std::vector<int> > >    item(m,G2);
-    std::vector<std::vector<std::vector<int> > >    guil(m,G2);
-    std::vector<std::vector<std::vector<int> > >    pos(m,G2);
-
-    // cut orientation codes
-    const int nil = 0;
-    const int Vert = 1;
-    const int Depth = 2;
-    const int Horz = 3;
+    std::vector<std::vector<std::vector<int> > >    G(m,G2);        // the best value for boxes in this bin
+    std::vector<std::vector<std::vector<int> > >    item(m,G2);     // the item at this location
+    std::vector<std::vector<std::vector<int> > >    guil(m,G2);     // the cut orientation
+    std::vector<std::vector<std::vector<int> > >    pos(m,G2);      // the cut position
 
     for( int i = 0; i < m; i++ )
     {
@@ -70,7 +67,7 @@ sPattern DP3UK (
                         {
                             G[i][j][k] = v[d];
                             item[i][j][k] = d;
-                            guil[i][j][k] = nil;
+                            guil[i][j][k] = (int) eCut::nil;
                         }
                     }
                 }
@@ -106,7 +103,7 @@ sPattern DP3UK (
                             t = d;
                     }
                     // Does vertical cut at Phat[x] improve value of solution
-                    if( pos[x][j][k] != nil )
+                    if( pos[x][j][k] != (int) eCut::nil )
                         continue;               // there is already a cut here
 
                     if( G[i][j][k] < G[x][j][k]+G[t][j][k] )
@@ -117,7 +114,7 @@ sPattern DP3UK (
 
                         G[i][j][k] = G[x][j][k]+G[t][j][k];
                         pos[i][j][k] = Phat[x];
-                        guil[i][j][k] = Vert;  // Vertical cut; parallel to yz-plane
+                        guil[i][j][k] = (int) eCut::vert;  // Vertical cut; parallel to yz-plane
 
                     }
                 }
@@ -136,7 +133,7 @@ sPattern DP3UK (
                         if( Qhat[d] <= Qhat[j] - Qhat[y] )
                             t = d;
                     }
-                    if( pos[i][t][k] != nil )
+                    if( pos[i][t][k] != (int) eCut::nil )
                         continue;               // there is already a cut here
                     if( G[i][j][k] < G[i][y][k]+G[i][t][k] )
                     {
@@ -146,7 +143,7 @@ sPattern DP3UK (
 
                         G[i][j][k] = G[i][y][k]+G[i][y][k];
                         pos[i][j][k] = Qhat[y];
-                        guil[i][j][k] = Depth;  // Depth cut ðvertical; parallel to xy plane
+                        guil[i][j][k] = (int) eCut::depth;  // Depth cut ðvertical; parallel to xy plane
                     }
                 }
 
@@ -164,7 +161,7 @@ sPattern DP3UK (
                         if( Rhat[d] <= Rhat[k] - Rhat[z] )
                             t = d;
                     }
-                    if( pos[i][j][t] != nil )
+                    if( pos[i][j][t] != (int) eCut::nil )
                         continue;               // there is already a cut here
                     if( G[i][j][k] < G[i][j][z]+G[i][j][t] )
                     {
@@ -174,7 +171,7 @@ sPattern DP3UK (
 
                         G[i][j][k] = G[i][j][z]+G[i][j][t];
                         pos[i][j][k] = Rhat[z];
-                        guil[i][j][k] = Horz;  // Horizontal cut; parallel to xy plane
+                        guil[i][j][k] = (int) eCut::horz;  // Horizontal cut; parallel to xy plane
                     }
                 }
             }
@@ -184,9 +181,7 @@ sPattern DP3UK (
     // collect results together for return to calling code
     sPattern P;
     P.instance = problem;
-    P.lCount = m;
-    P.wCount = s;
-    P.hCount = u;
+
     P.value = G;
     P.position = pos;
     P.direction = guil;
@@ -204,6 +199,10 @@ std::string sPattern::text() const
 
 //    ss << "Total value of solution "
 //       << value[lCount-1][wCount-1][hCount-1] << "\n";
+
+    int lCount = l_raster.size();
+    int wCount = w_raster.size();
+    int hCount = h_raster.size();
 
     int totalCuts = 0;
     for( int il = 0; il < lCount; il++ )
@@ -240,7 +239,7 @@ std::string sPattern::text() const
         {
             for( int ih = 0; ih < hCount; ih++ )
             {
-                if( direction[il][iw][ih] == 1 )
+                if( direction[il][iw][ih] == (int)eCut::vert )
                 {
                     cutset.insert( position[il][iw][ih] );
                 }
@@ -261,7 +260,7 @@ std::string sPattern::text() const
         {
             for( int ih = 0; ih < hCount; ih++ )
             {
-                if( direction[il][iw][ih] == 2 )
+                if( direction[il][iw][ih] == (int)eCut::depth )
                     cutset.insert( position[il][iw][ih] );
             }
         }
@@ -280,7 +279,7 @@ std::string sPattern::text() const
         {
             for( int ih = 0; ih < hCount; ih++ )
             {
-                if( direction[il][iw][ih] == 3 )
+                if( direction[il][iw][ih] == (int)eCut::horz )
                     cutset.insert( position[il][iw][ih] );
             }
         }

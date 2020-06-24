@@ -1,7 +1,16 @@
-// knapsack.h contains declarations for functions implementing knapsack algorithms
+// knapsack.h contains declarations for functions and data structures implementing knapsack algorithms
 
 #include <string>
 #include <vector>
+
+/// cut orientation codes
+enum class eCut
+{
+    nil,
+    vert,
+    depth,
+    horz,
+};
 
 /** discretization points ( (positions where guillotine cutting can be performed)
     @param[in] D knapsack capacity
@@ -47,12 +56,12 @@ struct sInstance
     std::vector<int> item_values;
     std::string myName;
 
-/* read problem instance
-        #param[in] fname path to file
+    /* read problem instance
+            #param[in] fname path to file
 
-    The file format is described
-    http://www.loco.ic.unicamp.br/files/instances/3duk/
-*/
+        The file format is described
+        http://www.loco.ic.unicamp.br/files/instances/3duk/
+    */
     void read( const std::string& fname );
 
     std::string text();
@@ -62,12 +71,12 @@ struct sInstance
 struct sPattern
 {
     sInstance instance;
-    int lCount, wCount, hCount;
+    std::vector<int> l_raster, w_raster, h_raster;          /// points where cuts might be made
     std::vector<std::vector<std::vector<int> > > value;
     std::vector<std::vector<std::vector<int> > > position;
     std::vector<std::vector<std::vector<int> > > item;
-    std::vector<std::vector<std::vector<int> > > direction;
-    std::vector<int> l_raster, w_raster, h_raster;
+    std::vector<std::vector<std::vector<int> > > direction; /// cut direction
+
 
     std::string text() const;
 };
