@@ -5,13 +5,13 @@
 void testRRP()
 {
     std::cout << "DDP\n";
-    auto r = DDP( 10, { 5, 7 } );
+    auto r = DDP( 13, { 4 } );
     for( int x : r )
         std::cout << x<< " ";
     std::cout << "\n";
 
     std::cout << "RRP\n";
-    r = RRP( 10, { 5, 7 } );
+    r = RRP( 13, { 4 } );
     for( int x : r )
         std::cout << x<< " ";
     std::cout << "\n";
@@ -48,7 +48,7 @@ void test2()
     std::vector<int> h  = { 4 };
 
     // 10 unit cube bin
-    problem.bin = std::vector<int>(3,12);
+    problem.bin = std::vector<int>(3,13);
 
     problem.item_values = { 5 };
 
@@ -84,7 +84,7 @@ int main()
 {
     std::cout << "DP3UK\n";
 
-    //testRRP();
+    testRRP();
     // test1();
     test2();
     //test3();

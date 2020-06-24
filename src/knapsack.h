@@ -1,6 +1,7 @@
 // knapsack.h contains declarations for functions implementing knapsack algorithms
 
 #include <string>
+#include <vector>
 
 /** discretization points ( (positions where guillotine cutting can be performed)
     @param[in] D knapsack capacity
@@ -33,7 +34,21 @@ std::vector<int> RRP(
 struct sInstance
 {
     std::vector<int> bin;
+    std::vector<int> l;
+    std::vector<int> w;
+    std::vector<int> h;
     std::vector<int> item_values;
+    std::string myName;
+
+/* read problem instance
+        #param[in] fname path to file
+
+    The file format is described
+    http://www.loco.ic.unicamp.br/files/instances/3duk/
+*/
+    void read( const std::string& fname );
+
+    std::string text();
 };
 
 /// A solution pattern
@@ -51,13 +66,7 @@ struct sPattern
 };
 
 /** dynamic programming for the three-dimensional unbounded knapsack
-    @param[in] l lengths of items
-    @param[in] w width of items
-    @param[in] h heights of items
     @param[in] problem instance
 */
 sPattern DP3UK (
-    std::vector<int>& l,
-    std::vector<int>& w,
-    std::vector<int>& h,
     sInstance& problem );

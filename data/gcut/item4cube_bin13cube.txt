@@ -1,0 +1,4 @@
+1
+13 13 13
+4 4 4
+item4cube_bin13cube

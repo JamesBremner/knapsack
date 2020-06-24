@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 #include <algorithm>
 #include "knapsack.h"
@@ -35,8 +36,8 @@ std::vector<int> RRP(
         int r = LargestInVSmallerThanX( S, D - p );
         if( r >= 0 )
             reduced_raster_points.push_back( r );
-
     }
+
     // arrange in ascending size
     std::reverse(reduced_raster_points.begin(),reduced_raster_points.end());
 

@@ -5,15 +5,15 @@
 #include "knapsack.h"
 
 sPattern DP3UK (
-    std::vector<int>& l,
-    std::vector<int>& w,
-    std::vector<int>& h,
     sInstance& problem )
 {
     // populate variables used by pseudo code
     int L = problem.bin[0];
     int W = problem.bin[1];
     int H = problem.bin[2];
+    std::vector<int> l = problem.l;
+    std::vector<int> w = problem.w;
+    std::vector<int> h = problem.h;
     std::vector<int> v = problem.item_values;
 
     // Calulate raster points
