@@ -17,16 +17,19 @@ sPattern DP3UK (
     std::vector<int> v = problem.item_values;
 
     // Calulate raster points
-    auto Phat = RRP( L, l );
-    auto Qhat = RRP( W, w );
-    auto Rhat = RRP( H, h );
-    std::cout << "length raster points ";
+    auto Phat = DDP( L, l );
+    auto Qhat = DDP( W, w );
+    auto Rhat = DDP( H, h );
+    int m = Phat.size();
+    int s = Qhat.size();
+    int u = Rhat.size();
+    std::cout << "length points ( total " << m << " ) " ;
     for( int p : Phat )
         std::cout << p << " ";
-    std::cout << "\nwidth raster points ";
+    std::cout << "\nwidth points ( total " << s << " ) " ;
     for( int p : Qhat )
         std::cout << p << " ";
-    std::cout << "\nheight raster points ";
+    std::cout << "\nheight  points ( total " << u << " ) " ;
     for( int p : Rhat )
         std::cout << p << " ";
     std::cout << "\n";
@@ -34,9 +37,6 @@ sPattern DP3UK (
     /* Store in G[i, j, k] for each bin of dimension (pi, qj, rk),
      with pi AP ~ , qj AQ ~ and rk AR ~ , the maximum value of a box
     that can be cut in such a bin. */
-    int m = Phat.size();
-    int s = Qhat.size();
-    int u = Rhat.size();
     std::vector<int>                                G1(u,0);
     std::vector<std::vector<int>  >                 G2(s,G1);
     std::vector<std::vector<std::vector<int> > >    G(m,G2);

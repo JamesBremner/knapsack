@@ -26,6 +26,13 @@ std::vector<int> DDP(
     int D,
     const std::vector<int>& d );
 
+/** Calcculate set of reduced raster points
+    @param[in] D the bin size in one dimension
+    @param[in[ d the item ypes sizes in same dimension
+
+    This implements https://github.com/JamesBremner/knapsack/issues/1#issuecomment-648373643
+*/
+
 std::vector<int> RRP(
     int D,
     const std::vector<int>& d );

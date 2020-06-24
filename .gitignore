@@ -3,3 +3,5 @@
 *.depend
 *.o
 *.layout
+
+bin/*
