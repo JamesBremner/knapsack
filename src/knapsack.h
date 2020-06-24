@@ -12,6 +12,8 @@ enum class eCut
     horz,
 };
 
+typedef std::vector<std::vector<std::vector<std::vector<int> > > > v4d_t;
+
 /** discretization points ( (positions where guillotine cutting can be performed)
     @param[in] D knapsack capacity
     @param[in] d vector of item weights
@@ -55,6 +57,7 @@ struct sInstance
     std::vector<int> h;
     std::vector<int> item_values;
     std::string myName;
+    int stageCount;                 // the number of stages
 
     /* read problem instance
             #param[in] fname path to file
@@ -72,11 +75,10 @@ struct sPattern
 {
     sInstance instance;
     std::vector<int> l_raster, w_raster, h_raster;          /// points where cuts might be made
-    std::vector<std::vector<std::vector<int> > > value;
-    std::vector<std::vector<std::vector<int> > > position;
-    std::vector<std::vector<std::vector<int> > > item;
-    std::vector<std::vector<std::vector<int> > > direction; /// cut direction
-
+    v4d_t value;
+    v4d_t position;
+    v4d_t item;
+    v4d_t direction;                         /// cut direction
 
     std::string text() const;
 };
@@ -85,4 +87,17 @@ struct sPattern
     @param[in] problem instance
 */
 sPattern DP3UK (
+    sInstance& problem );
+
+ /** dynamic programming for the staged three-dimensional unbounded knapsack
+    @param[in] problem instance
+
+    A k-staged cutting is a sequence of at most k stages of cuts, each
+stage of which is a set of parallel guillotine cuts performed on the
+objects obtained in the previous stage. Moreover, the cuts in each
+stage must be orthogonal to the cuts performed in the previous
+stage. We assume, without loss of generality, that the cuts are
+infinitely thin ( no kerf! )
+*/
+    sPattern DPS3UK (
     sInstance& problem );

@@ -7,6 +7,9 @@
 sPattern DP3UK (
     sInstance& problem )
 {
+    // force unstaged
+    problem.stageCount = 0;
+
     // populate variables used by pseudo code
     int L = problem.bin[0];
     int W = problem.bin[1];
@@ -94,6 +97,7 @@ sPattern DP3UK (
                         nn = d;
                     }
                 }
+
                 for( int x = 0; x <= nn; x++ )
                 {
                     int t = 0;
@@ -182,10 +186,10 @@ sPattern DP3UK (
     sPattern P;
     P.instance = problem;
 
-    P.value = G;
-    P.position = pos;
-    P.direction = guil;
-    P.item = item;
+    P.value.push_back( G );
+    P.position.push_back( pos );
+    P.direction.push_back( guil );
+    P.item.push_back( item );
     P.l_raster = Phat;
     P.w_raster = Qhat;
     P.h_raster = Rhat;
@@ -211,7 +215,7 @@ std::string sPattern::text() const
         {
             for( int ih = 0; ih < hCount; ih++ )
             {
-                if( direction[il][iw][ih]  )
+                if( direction[0][il][iw][ih]  )
                     totalCuts++;
             }
         }
@@ -239,9 +243,9 @@ std::string sPattern::text() const
         {
             for( int ih = 0; ih < hCount; ih++ )
             {
-                if( direction[il][iw][ih] == (int)eCut::vert )
+                if( direction[0][il][iw][ih] == (int)eCut::vert )
                 {
-                    cutset.insert( position[il][iw][ih] );
+                    cutset.insert( position[0][il][iw][ih] );
                 }
             }
         }
@@ -260,8 +264,8 @@ std::string sPattern::text() const
         {
             for( int ih = 0; ih < hCount; ih++ )
             {
-                if( direction[il][iw][ih] == (int)eCut::depth )
-                    cutset.insert( position[il][iw][ih] );
+                if( direction[0][il][iw][ih] == (int)eCut::depth )
+                    cutset.insert( position[0][il][iw][ih] );
             }
         }
     }
@@ -279,8 +283,8 @@ std::string sPattern::text() const
         {
             for( int ih = 0; ih < hCount; ih++ )
             {
-                if( direction[il][iw][ih] == (int)eCut::horz )
-                    cutset.insert( position[il][iw][ih] );
+                if( direction[0][il][iw][ih] == (int)eCut::horz )
+                    cutset.insert( position[0][il][iw][ih] );
             }
         }
     }
@@ -301,10 +305,10 @@ std::string sPattern::text() const
             for( int ih = 0; ih < hCount; ih++ )
             {
                 itemCount++;
-                totalValue += instance.item_values[ item[il][iw][ih] ];
+                totalValue += instance.item_values[ item[0][il][iw][ih] ];
                 std::cout
-                        << "item type " << item[il][iw][ih]
-                        << " value " << instance.item_values[ item[il][iw][ih] ]
+                        << "item type " << item[0][il][iw][ih]
+                        << " value " << instance.item_values[ item[0][il][iw][ih] ]
                         << " at " << l_raster[il] <<" "<< w_raster[iw] <<" "<< h_raster[ih] << "\n";
             }
         }
