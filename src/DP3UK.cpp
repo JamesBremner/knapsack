@@ -106,18 +106,15 @@ sPattern DP3UK (
                         if( Phat[d] <= Phat[ilength] - Phat[x] )
                             t = d;
                     }
-                    // Does vertical cut at Phat[x] improve value of solution
-                    if( pos[x][iwidth][iheight] != (int) eCut::nil )
-                        continue;               // there is already a cut here
-
+                    // Does vertical cut at Phat[t] improve value of solution
                     if( G[ilength][iwidth][iheight] < G[x][iwidth][iheight]+G[t][iwidth][iheight] )
                     {
                         std::cout << "vertical cut ";
                         std::cout << ilength <<" "<< iwidth <<" "<< iheight  <<" "<< G[ilength][iwidth][iheight] << " ";
-                        std::cout << x <<" "<< t <<" "<< G[ilength][iwidth][iheight] << "<" << G[x][iwidth][iheight] << "+"<<G[t][iwidth][iheight] << "\n";
+                        std::cout <<"x="<< x <<" t="<< t <<" "<< G[ilength][iwidth][iheight] << "<" << G[x][iwidth][iheight] << "+"<<G[t][iwidth][iheight] << "\n";
 
                         G[ilength][iwidth][iheight] = G[x][iwidth][iheight]+G[t][iwidth][iheight];
-                        pos[ilength][iwidth][iheight] = Phat[x];
+                        pos[ilength][iwidth][iheight] = Phat[t];
                         guil[ilength][iwidth][iheight] = (int) eCut::vert;  // Vertical cut; parallel to yz-plane
 
                     }
@@ -137,8 +134,6 @@ sPattern DP3UK (
                         if( Qhat[d] <= Qhat[iwidth] - Qhat[y] )
                             t = d;
                     }
-                    if( pos[ilength][t][iheight] != (int) eCut::nil )
-                        continue;               // there is already a cut here
                     if( G[ilength][iwidth][iheight] < G[ilength][y][iheight]+G[ilength][t][iheight] )
                     {
                         std::cout << "depth cut ";
@@ -146,7 +141,7 @@ sPattern DP3UK (
                         std::cout  << y <<" "<< t <<" "<< G[ilength][iwidth][iheight] << "<" << G[y][iwidth][iheight] << "+"<<G[t][iwidth][iheight] << "\n";
 
                         G[ilength][iwidth][iheight] = G[ilength][y][iheight]+G[ilength][y][iheight];
-                        pos[ilength][iwidth][iheight] = Qhat[y];
+                        pos[ilength][iwidth][iheight] = Qhat[t];
                         guil[ilength][iwidth][iheight] = (int) eCut::depth;  // Depth cut ðvertical; parallel to xy plane
                     }
                 }
@@ -165,8 +160,6 @@ sPattern DP3UK (
                         if( Rhat[d] <= Rhat[iheight] - Rhat[z] )
                             t = d;
                     }
-                    if( pos[ilength][iwidth][t] != (int) eCut::nil )
-                        continue;               // there is already a cut here
                     if( G[ilength][iwidth][iheight] < G[ilength][iwidth][z]+G[ilength][iwidth][t] )
                     {
                         std::cout << "horizontal cut ";
@@ -174,7 +167,7 @@ sPattern DP3UK (
                         std::cout  << z <<" "<< t <<" "<< G[ilength][iwidth][iheight] << "<" << G[z][iwidth][iheight] << "+"<<G[t][iwidth][iheight] << "\n";
 
                         G[ilength][iwidth][iheight] = G[ilength][iwidth][z]+G[ilength][iwidth][t];
-                        pos[ilength][iwidth][iheight] = Rhat[z];
+                        pos[ilength][iwidth][iheight] = Rhat[t];
                         guil[ilength][iwidth][iheight] = (int) eCut::horz;  // Horizontal cut; parallel to xy plane
                     }
                 }

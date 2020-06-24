@@ -1,0 +1,4 @@
+1
+10 10 10
+7 7 7
+item7cube_bin10cube
