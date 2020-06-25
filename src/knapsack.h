@@ -13,8 +13,60 @@ enum class eCut
 };
 std::string text( eCut cut );
 
-
 typedef std::vector<std::vector<std::vector<std::vector<int> > > > v4d_t;
+
+/// A 3D object with dimension and location
+class cSpace
+{
+public:
+    int myLength, myWidth, myHeight;    // dimensions
+    int myLocL, myLocW, myLocH;
+
+
+    cSpace( int L, int W, int H )
+        : myLength( L ), myWidth( W ), myHeight{ H }
+    {
+
+    }
+    bool fit( const cSpace& squeeze ) const
+    {
+        return ( squeeze.myLength <= myLength &&
+                 squeeze.myLength <= myLength &&
+                 squeeze.myHeight <= myHeight );
+    }
+
+    int size_horiz()
+    {
+        return myLength * myWidth;
+    }
+};
+
+// An item that packs into a bin, specialization of cSpace
+class cItem : public cSpace
+{
+public:
+    int demand;
+    bool myPacked;
+
+    cItem( int L, int W, int H, int D )
+        : cSpace( L, W, H )
+        , demand( D )
+        , myPacked( false )
+    {
+
+    }
+    void pack( const cItem& space )
+    {
+        myPacked = true;
+        myLocL = space.myLocL;
+        myLocW = space.myLocW;
+        myLocH = space.myLocH;
+    }
+};
+
+// A vector of items
+typedef std::vector< cItem > itemv_t;
+
 
 /** discretization points ( (positions where guillotine cutting can be performed)
     @param[in] D knapsack capacity
@@ -49,6 +101,16 @@ std::vector<int> DDP(
 std::vector<int> RRP(
     int D,
     const std::vector<int>& d );
+
+/** 2D level packer, rectangular knapsack 2D greedy first fit
+@param[in/out] level the items to go in this level
+@param[in] bin the bin being packed
+
+Any items that do not fit will have their myPacked attribute unset.
+*/
+void RK2FFG(
+    itemv_t& level,
+    const std::vector<int>& bin );
 
 /// A problem instance
 struct sInstance

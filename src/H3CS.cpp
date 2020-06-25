@@ -6,22 +6,6 @@
 #include <algorithm>
 #include "knapsack.h"
 
-
-class cItem
-{
-public:
-    int l, w, h;    // dimensions
-    int demand;
-
-    cItem( int L, int W, int H, int D )
-        : l( L ), w( W ), h{ H }
-        , demand( D )
-    {
-
-    }
-};
-typedef std::vector< cItem > itemv_t;
-
 /** allocate items of same height to levels
 @param[in] all_items
 @return vector of levels
@@ -31,7 +15,7 @@ items2levels( itemv_t& all_items )
 {
     std::sort( all_items.begin(), all_items.end(),[]( cItem& a, cItem& b)
     {
-        return a.h < b.h;
+        return a.myHeight < b.myHeight;
     });
 
     // allocate items of same height to a level
@@ -39,7 +23,7 @@ items2levels( itemv_t& all_items )
     int h_level = -1;
     for( auto& item : all_items )
     {
-        if( item.h == h_level )
+        if( item.myHeight == h_level )
         {
             // add to current level
             vlevel.back().push_back( item );
@@ -47,29 +31,13 @@ items2levels( itemv_t& all_items )
         else
         {
             // create a new level
-            h_level = item.h;
+            h_level = item.myHeight;
             itemv_t vl;
             vl.push_back( item );
             vlevel.push_back( vl );
         }
     }
-    for( auto& level : vlevel )
-    {
-        std::cout <<  "LEVEL\n";
-        for( auto& item : level )
-        {
-            std::cout << item.l <<" "<< item.w <<" "<< item.h << "\n";
-        }
-    }
     return vlevel;
-}
-/** 2D packer for a level
-    @param[in] level the items to go in this level
-    @param[in] bin the bin being packed
-*/
-void CS2( itemv_t& level, std::vector<int>& bin )
-{
-    throw std::runtime_error("No miracles today!");
 }
 
 sPattern H3CS (
@@ -79,19 +47,34 @@ sPattern H3CS (
     itemv_t all_items;
     for( int kItem = 0; kItem < (int) problem.l.size(); kItem++ )
     {
-        all_items.push_back( cItem(
-                                 problem.l[kItem],
-                                 problem.w[kItem],
-                                 problem.h[kItem],
-                                 problem.demand[kItem]) );
+        for( int k = 0; k < problem.demand[kItem]; k++ )
+            all_items.push_back( cItem(
+                                     problem.l[kItem],
+                                     problem.w[kItem],
+                                     problem.h[kItem],
+                                     1 ));
     }
 
     // allocate items to levels
     auto theLevels = items2levels( all_items );
 
-    // pack items into their level using CS2 algorithm
+    // pack items into their level
     for( auto& level : theLevels )
-        CS2( level, problem.bin );
+        RK2FFG( level, problem.bin );
+
+    // stack the levels
+    int height = 0;
+    for( auto& level : theLevels )
+    {
+        for( auto& item : level )
+        {
+            item.myLocH = height;
+            std::cout << item.myLocL << " "<<
+                      item.myLocW << " "<<
+                      item.myLocH << "\n";
+        }
+        height += level[0].myHeight;
+    }
 
     sPattern P;
     P.instance = problem;
