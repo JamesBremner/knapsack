@@ -61,11 +61,15 @@ void sInstance::read( const std::string& fname )
         }
         if( lcount < 2 + box_type_count )
         {
+            // parse an item
             auto lv = ParseSpaceDelimited( line );
             l.push_back( lv[0] );
             w.push_back( lv[1] );
             h.push_back( lv[2] );
             item_values.push_back( lv[0]*lv[1]*lv[2] );
+            if( lv.size() == 4 )
+                demand.push_back(lv[3]);
+
             lcount++;
             continue;
         }

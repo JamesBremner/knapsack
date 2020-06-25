@@ -57,6 +57,7 @@ struct sInstance
     std::vector<int> l;
     std::vector<int> w;
     std::vector<int> h;
+    std::vector<int> demand;        // number of items required to pack
     std::vector<int> item_values;
     std::string myName;
     int stageCount;                 // the number of stages
@@ -97,15 +98,18 @@ struct sPattern
 sPattern DP3UK (
     sInstance& problem );
 
- /** dynamic programming for the staged three-dimensional unbounded knapsack
-    @param[in] problem instance
+/** dynamic programming for the staged three-dimensional unbounded knapsack
+   @param[in] problem instance
 
-    A k-staged cutting is a sequence of at most k stages of cuts, each
+   A k-staged cutting is a sequence of at most k stages of cuts, each
 stage of which is a set of parallel guillotine cuts performed on the
 objects obtained in the previous stage. Moreover, the cuts in each
 stage must be orthogonal to the cuts performed in the previous
 stage. We assume, without loss of generality, that the cuts are
 infinitely thin ( no kerf! )
 */
-    sPattern DPS3UK (
+sPattern DPS3UK (
+    sInstance& problem );
+
+sPattern H3CS (
     sInstance& problem );
