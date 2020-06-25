@@ -99,6 +99,7 @@ sPattern DPS3UK (
     // loop over stages
     for( int b = 1; b < k; b++ )
     {
+        std::cout << "======= STAGE " << b << "============\n";
         for( int ilength = 0; ilength < m; ilength++ )
         {
             for( int iwidth = 0; iwidth < s; iwidth++ )
@@ -128,9 +129,6 @@ sPattern DPS3UK (
                                     t = d;
                             }
                             // Does vertical cut at Phat[x] improve value of solution
-                            if( pos[b][x][iwidth][iheight] != (int) eCut::nil )
-                                continue;               // there is already a cut here
-
                             if( G[b][ilength][iwidth][iheight] < G[b][x][iwidth][iheight]+G[b][t][iwidth][iheight] )
                             {
                                 std::cout << "vertical cut ";
@@ -138,12 +136,11 @@ sPattern DPS3UK (
                                 std::cout << x <<" "<< t <<" "<< G[b][ilength][iwidth][iheight] << "<" << G[b][x][iwidth][iheight] << "+"<<G[b][t][iwidth][iheight] << "\n";
 
                                 G[b][ilength][iwidth][iheight] = G[b][x][iwidth][iheight]+G[b][t][iwidth][iheight];
-                                pos[b][ilength][iwidth][iheight] = Phat[x];
+                                pos[b][ilength][iwidth][iheight] = Phat[t];
                                 guil[b][ilength][iwidth][iheight] = (int) eCut::vert;  // Vertical cut; parallel to yz-plane
 
                             }
                         }
-                        previous = eCut::vert;
                     }
 
                     else if ( previous == eCut::vert )
@@ -162,8 +159,6 @@ sPattern DPS3UK (
                                 if( Rhat[d] <= Rhat[iheight] - Rhat[z] )
                                     t = d;
                             }
-                            if( pos[b][ilength][iwidth][t] != (int) eCut::nil )
-                                continue;               // there is already a cut here
                             if( G[b][ilength][iwidth][iheight] < G[b][ilength][iwidth][z]+G[b][ilength][iwidth][t] )
                             {
                                 std::cout << "horizontal cut ";
@@ -171,11 +166,10 @@ sPattern DPS3UK (
                                 std::cout  << z <<" "<< t <<" "<< G[b][ilength][iwidth][iheight] << "<" << G[b][z][iwidth][iheight] << "+"<<G[b][t][iwidth][iheight] << "\n";
 
                                 G[b][ilength][iwidth][iheight] = G[b][ilength][iwidth][z]+G[b][ilength][iwidth][t];
-                                pos[b][ilength][iwidth][iheight] = Rhat[z];
+                                pos[b][ilength][iwidth][iheight] = Rhat[t];
                                 guil[b][ilength][iwidth][iheight] = (int) eCut::horz;  // Horizontal cut; parallel to xy plane
                             }
                         }
-                        previous = eCut::horz;
                     }
                     else
                     {
@@ -193,8 +187,6 @@ sPattern DPS3UK (
                                 if( Qhat[d] <= Qhat[iwidth] - Qhat[y] )
                                     t = d;
                             }
-                            if( pos[b][ilength][t][iheight] != (int) eCut::nil )
-                                continue;               // there is already a cut here
                             if( G[b][ilength][iwidth][iheight] < G[b][ilength][y][iheight]+G[b][ilength][t][iheight] )
                             {
                                 std::cout << "depth cut ";
@@ -202,15 +194,30 @@ sPattern DPS3UK (
                                 std::cout  << y <<" "<< t <<" "<< G[b][ilength][iwidth][iheight] << "<" << G[b][y][iwidth][iheight] << "+"<<G[b][t][iwidth][iheight] << "\n";
 
                                 G[b][ilength][iwidth][iheight] = G[b][ilength][y][iheight]+G[b][ilength][y][iheight];
-                                pos[b][ilength][iwidth][iheight] = Qhat[y];
+                                pos[b][ilength][iwidth][iheight] = Qhat[t];
                                 guil[b][ilength][iwidth][iheight] = (int) eCut::depth;  // Depth cut ðvertical; parallel to xy plane
                             }
                         }
-                        previous = eCut::depth;
                     }
                 }
             }
         }
+        // next stage uses next cut orientation
+        switch( previous )
+        {
+        case eCut::vert:
+            previous = eCut::depth;
+            break;
+        case eCut::depth:
+            previous = eCut::horz;
+            break;
+        case eCut::horz:
+            previous = eCut::vert;
+            break;
+        default:
+            throw std::runtime_error("DPS3UK Bad stage value");
+        }
+
     }   // end loop over stages
 
 
