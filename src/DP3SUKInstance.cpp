@@ -32,7 +32,7 @@ int main( int argc, char* argv[] )
     auto P = DPS3UK( problem );
 
     // display the solution
-    //std::cout << P.text() << "\n";
+    std::cout << P.text() << "\n";
 
     return 0;
 }

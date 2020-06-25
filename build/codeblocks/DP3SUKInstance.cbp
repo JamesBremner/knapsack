@@ -43,8 +43,8 @@
 		<Unit filename="../../src/DP3SUKInstance.cpp" />
 		<Unit filename="../../src/DPS3UK.cpp" />
 		<Unit filename="../../src/RRP.cpp" />
+		<Unit filename="../../src/knapsack.cpp" />
 		<Unit filename="../../src/knapsack.h" />
-		<Unit filename="../../src/sInstance.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

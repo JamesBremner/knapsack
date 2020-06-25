@@ -224,5 +224,13 @@ sPattern DPS3UK (
     sPattern P;
     P.instance = problem;
 
+    P.value = G ;
+    P.position = pos;
+    P.direction = guil;
+    P.item =item;
+    P.l_raster = Phat;
+    P.w_raster = Qhat;
+    P.h_raster = Rhat;
+
     return P;
 }

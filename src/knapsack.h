@@ -11,6 +11,8 @@ enum class eCut
     depth,
     horz,
 };
+std::string text( eCut cut );
+
 
 typedef std::vector<std::vector<std::vector<std::vector<int> > > > v4d_t;
 
@@ -81,6 +83,12 @@ struct sPattern
     v4d_t direction;                         /// cut direction
 
     std::string text() const;
+
+    /** Human readable cuts
+        @param[in] stage
+        @param[in] cut orientation
+    */
+    std::string textCuts( int stage, eCut cut ) const;
 };
 
 /** dynamic programming for the three-dimensional unbounded knapsack

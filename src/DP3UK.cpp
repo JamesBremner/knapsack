@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <set>
+
 #include "knapsack.h"
 
 sPattern DP3UK (
@@ -188,128 +188,6 @@ sPattern DP3UK (
     P.h_raster = Rhat;
 
     return P;
-}
-
-std::string sPattern::text() const
-{
-    std::stringstream ss;
-
-//    ss << "Total value of solution "
-//       << value[lCount-1][wCount-1][hCount-1] << "\n";
-
-    int lCount = l_raster.size();
-    int wCount = w_raster.size();
-    int hCount = h_raster.size();
-
-    int totalCuts = 0;
-    for( int il = 0; il < lCount; il++ )
-    {
-        for( int iw = 0; iw < wCount; iw++ )
-        {
-            for( int ih = 0; ih < hCount; ih++ )
-            {
-                if( direction[0][il][iw][ih]  )
-                    totalCuts++;
-            }
-        }
-    }
-    if( ! totalCuts )
-    {
-        ss << "\nno cuts found\n"
-           << "Probably means that items were too big for bin\n";
-        return ss.str();
-    }
-
-    /* extract all unique vertical cuts.
-
-    The result contains multiple cuts at each location.
-    I do not think it is a bug in my code.
-    Perhaps the algorithm designer considers this OK?
-    Anyway, there seems little harm is using a set to filter out duplicates
-    so we can just display the unique cut locations
-
-    */
-    std::set<int> cutset;
-    for( int il = 0; il < lCount; il++ )
-    {
-        for( int iw = 0; iw < wCount; iw++ )
-        {
-            for( int ih = 0; ih < hCount; ih++ )
-            {
-                if( direction[0][il][iw][ih] == (int)eCut::vert )
-                {
-                    cutset.insert( position[0][il][iw][ih] );
-                }
-            }
-        }
-    }
-    ss << "Vertical cuts at ";
-    for( int c : cutset )
-    {
-        ss << c << " ";
-    }
-    ss << "\n";
-    cutset.clear();
-
-    for( int il = 0; il < lCount; il++ )
-    {
-        for( int iw = 0; iw < wCount; iw++ )
-        {
-            for( int ih = 0; ih < hCount; ih++ )
-            {
-                if( direction[0][il][iw][ih] == (int)eCut::depth )
-                    cutset.insert( position[0][il][iw][ih] );
-            }
-        }
-    }
-    ss << "Depth cuts at ";
-    for( int c : cutset )
-    {
-        ss << c << " ";
-    }
-    ss << "\n";
-    cutset.clear();
-
-    for( int il = 0; il < lCount; il++ )
-    {
-        for( int iw = 0; iw < wCount; iw++ )
-        {
-            for( int ih = 0; ih < hCount; ih++ )
-            {
-                if( direction[0][il][iw][ih] == (int)eCut::horz )
-                    cutset.insert( position[0][il][iw][ih] );
-            }
-        }
-    }
-    ss << "Horizontal cuts at ";
-    for( int c : cutset )
-    {
-        ss << c << " ";
-    }
-    ss << "\n";
-    cutset.clear();
-
-    int itemCount = 0;
-    int totalValue = 0;
-    for( int il = 0; il < lCount; il++ )
-    {
-        for( int iw = 0; iw < wCount; iw++ )
-        {
-            for( int ih = 0; ih < hCount; ih++ )
-            {
-                itemCount++;
-                totalValue += instance.item_values[ item[0][il][iw][ih] ];
-                std::cout
-                        << "item type " << item[0][il][iw][ih]
-                        << " value " << instance.item_values[ item[0][il][iw][ih] ]
-                        << " at " << l_raster[il] <<" "<< w_raster[iw] <<" "<< h_raster[ih] << "\n";
-            }
-        }
-    }
-    std::cout << itemCount << " items, total value " << totalValue << "\n\n";
-
-
-    return ss.str();
 }
 
 
