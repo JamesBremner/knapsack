@@ -103,12 +103,13 @@ std::vector<int> RRP(
     const std::vector<int>& d );
 
 /** 2D level packer, rectangular knapsack 2D greedy first fit
-@param[in/out] level the items to go in this level
-@param[in] bin the bin being packed
+    @param[in/out] level the items to go in this level
+    @param[in] bin the bin being packed
+    @return true if all items fitted into bin
 
 Any items that do not fit will have their myPacked attribute unset.
 */
-void RK2FFG(
+bool RK2FFG(
     itemv_t& level,
     const std::vector<int>& bin );
 

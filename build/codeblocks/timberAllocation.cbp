@@ -2,22 +2,21 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="H3CSInstance" />
+		<Option title="timberAllocation" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc_v83" />
 		<Build>
 			<Target title="Debug">
-				<Option output="../../bin/H3CSInstance" prefix_auto="1" extension_auto="1" />
+				<Option output="../../bin/timberAllocation" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc_v83" />
-				<Option parameters="C:\Users\James\code\knapsack\data\gcut\H3CSTest1.txt" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="../../bin/H3CSInstance" prefix_auto="1" extension_auto="1" />
+				<Option output="../../bin/timberAllocation" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc_v83" />
@@ -32,19 +31,8 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
-			<Add option="-std=c++17" />
 		</Compiler>
-		<Linker>
-			<Add option="-static-libstdc++" />
-			<Add option="-static-libgcc" />
-			<Add option="-static" />
-		</Linker>
-		<Unit filename="../../src/DDP.cpp" />
-		<Unit filename="../../src/H3CS.cpp" />
-		<Unit filename="../../src/H3CSInstance.cpp" />
-		<Unit filename="../../src/RK2FFG.cpp" />
-		<Unit filename="../../src/knapsack.cpp" />
-		<Unit filename="../../src/knapsack.h" />
+		<Unit filename="../../../src/TimberAllocation.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

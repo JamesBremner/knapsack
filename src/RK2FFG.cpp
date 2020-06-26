@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "knapsack.h"
 
-void RK2FFG(
+bool RK2FFG(
     itemv_t& level,
     const std::vector<int>& bin )
 {
@@ -26,6 +26,7 @@ void RK2FFG(
     space.back().myLocW = 0;
     space.back().myLocH = 0;
 
+    bool allFitted = true;
     // loop over the items
     for( auto& item : level )
     {
@@ -66,6 +67,9 @@ void RK2FFG(
                 return a.size_horiz() > b.size_horiz();
             });
         }
+        if( ! item.isPacked )
+            allFitted = false;
     }
+    return allFitted;
 }
 

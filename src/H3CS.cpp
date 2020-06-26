@@ -57,10 +57,22 @@ sPattern H3CS (
 
     // allocate items to levels
     auto theLevels = items2levels( all_items );
+    std::vector< itemv_t > theExtras;
 
     // pack items into their level
-    for( auto& level : theLevels )
-        RK2FFG( level, problem.bin );
+    for( auto& level : theLevels ) {
+        if( ! RK2FFG( level, problem.bin ) )
+        {
+            itemv_t extra;
+            for( auto& item : level )
+            {
+                if( !item.isPacked ) {
+                    extra.pus_back( item );
+                }
+            }
+            theExtras.push_back( extra );
+        }
+    }
 
     // stack the levels
     int height = 0;
