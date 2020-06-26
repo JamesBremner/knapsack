@@ -3,75 +3,13 @@
 #include <sstream>
 #include <memory>
 #include <vector>
+#include <algorithm>
+#include "TimberAllocation.h"
 
 using namespace std;
 
 namespace ta
 {
-
-class cTimber;
-typedef std::shared_ptr< cTimber > timber_t;
-typedef std::vector< timber_t > timberv_t;
-
-
-/// A 3D object with dimension and location
-class cSpace
-{
-public:
-    int myLength, myWidth, myHeight;    // dimensions
-    int myLocL, myLocW, myLocH;
-
-
-    cSpace( int L, int W, int H )
-        : myLength( L ), myWidth( W ), myHeight{ H }
-    {
-
-    }
-    bool fit( const cSpace& squeeze ) const
-    {
-        return ( squeeze.myLength <= myLength &&
-                 squeeze.myLength <= myLength &&
-                 squeeze.myHeight <= myHeight );
-    }
-
-    int size_horiz()
-    {
-        return myLength * myWidth;
-    }
-};
-
-class cTimber : public cSpace
-{
-public:
-    cTimber()
-    : cSpace( 0, 0, 0 )
-    {
-
-    }
-    cTimber( int L, int W, int H )
-        : cSpace( L, W, H )
-    {
-
-    }
-    int ParseSpaceDelimited(
-        const std::string& l );
-private:
-    std::string myUserID;
-    int myDemand;
-
-};
-class cInstance
-{
-public:
-    void read( const std::string& fname );
-
-private:
-    timberv_t myInventory;
-    timberv_t myOrder;
-    std::vector< int > ParseSpaceDelimited(
-        const std::string& l );
-    void add( std::vector< int > );
-};
 
 int cTimber::ParseSpaceDelimited(
     const std::string& l )
@@ -106,6 +44,7 @@ void cInstance::read(
     myInventory.clear();
     myOrder.clear();
 
+    // loop over lines in file
     std::string line;
     while( std::getline( f, line ) )
     {
@@ -121,13 +60,78 @@ void cInstance::read(
             break;
         }
     }
+    expandDemand( myInventory );
+    expandDemand( myOrder );
+}
+
+void cInstance::expandDemand( timberv_t& tv )
+{
+    timberv_t ex;
+    for( auto& t : tv )
+    {
+        if( t->myDemand <= 0 )
+            throw std::runtime_error("Bad demand for " + t->myUserID );
+        for( int k = 0; k < t->myDemand-1; k++ )
+            ex.push_back( timber_t( new cTimber( *t.get() )));
+    }
+    tv.insert(
+        tv.end(),
+        ex.begin(), ex.end() );
+}
+
+std::string cInstance::text()
+{
+    std::stringstream ss;
+    ss << "Stock contains " << myInventory.size()  << " timbers\n"
+       << "Sheet inventory " << mySheet.size() << "\n"
+       << "Scrap inventory " << myScrap.size() << "\n"
+       << "Order demands " << myOrder.size() << " timbers\n";
+    return ss.str();
+}
+
+void cInstance::sortInventory( int sheetHeight, int scrapWidth )
+{
+    // rotate, if neccesary, so L > W > H
+    for( auto t : myInventory )
+    {
+        t->rotateLWH();
+    }
+
+    // find sheets
+    for( auto t : myInventory )
+        if( t->myHeight < sheetHeight )
+            mySheet.push_back( t );
+    myInventory.erase(
+        remove_if(
+            myInventory.begin(),
+            myInventory.end(),
+            [ sheetHeight ] ( timber_t t )
+    {
+        return( t->myHeight < sheetHeight );
+    } ),
+    myInventory.end() );
+
+
+    // find scraps
+    for( auto t : mySheet )
+        if( t->myWidth < scrapWidth )
+            myScrap.push_back( t );
+    myInventory.erase(
+        remove_if(
+            mySheet.begin(),
+            mySheet.end(),
+            [ scrapWidth ] ( timber_t t )
+    {
+        return( t->myWidth < scrapWidth );
+    } ),
+    mySheet.end() );
 }
 
 }
 
 int main( int argc, char* argv[] )
 {
-    cout << "TimberAllocation" << endl;
+    cout << "TimberAllocation1" << endl;
 
     if( argc != 2 )
     {
@@ -135,8 +139,17 @@ int main( int argc, char* argv[] )
         exit(1);
     }
 
-    ta::cInstance I;
-    I.read( argv[1] );
-
+    try
+    {
+        ta::cInstance I;
+        I.read( argv[1] );
+        std::cout << I.text();
+        I.sortInventory( 1000, 100 );
+        std::cout << I.text();
+    }
+    catch( std::runtime_error& e )
+    {
+        std::cout << "exception: " << e.what() << "\n";
+    }
     return 0;
 }

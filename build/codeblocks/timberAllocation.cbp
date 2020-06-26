@@ -8,9 +8,11 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="../../bin/timberAllocation" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc_v83" />
+				<Option parameters="../data/t1.txt" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -32,7 +34,14 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="../../../src/TimberAllocation.cpp" />
+		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
+			<Add option="-static" />
+		</Linker>
+		<Unit filename="../../src/TimberAllocation.cpp" />
+		<Unit filename="../../src/TimberAllocation.h" />
+		<Unit filename="../../src/taSpace.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
