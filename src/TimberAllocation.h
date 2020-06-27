@@ -1,3 +1,5 @@
+#pragma once
+
 namespace ta
 {
 
@@ -50,30 +52,57 @@ public:
     int ParseSpaceDelimited(
         const std::string& l );
 
+    std::string text();
 
     std::string myUserID;
     int myCount;
 
 };
-class cInstance
+
+class cInventory
 {
 public:
-    void read( const std::string& fname );
+    void clear();
+    void add( timber_t t );
+    void expandCount();
     std::string text();
 
     /** Sort inventory into stock, sheets and scraps
-        @param[in] sheetHeight maximum sheet height
-        @param[in] scrapWidth maximum scrap width
+    @param[in] sheetHeight maximum sheet height
+    @param[in] scrapWidth maximum scrap width
+
+    This will allow inentory returns, if present,
+    to be optimised.
+
+    tid7
     */
     void sortInventory( int sheetHeight, int scrapWidth );
 
-
-private:
+public:
     timberv_t myInventory;      /// inentory ( all timbers labeled 'i' in the instance file )
-    timberv_t myOrder;          /// the timbers that have to be delivered
     timberv_t myScrap;          /// inventory fpr 1D cutting
     timberv_t mySheet;          /// inventory for 2D cutting
     timberv_t myStock;          /// invemtory for 3D cutting
+};
+
+class cInstance
+{
+public:
+    void read(
+        cInventory& Inventory,
+        const std::string& fname );
+
+    std::string text();
+
+    /** Expand multiple timbers
+        @param[in] tv vector of timbers
+    */
+    static void expandCount( timberv_t& tv );
+
+
+    timberv_t myOrder;          /// the timbers that have to be delivered
+
+private:
 
     /// Parse a line in the instance file
     std::vector< int > ParseSpaceDelimited(
@@ -83,7 +112,13 @@ private:
         @param[in] tv vector of timbers
     */
     void expandCount();
-    void expandCount( timberv_t& tv );
 };
+/** allocate tombers of same height to levels
+@param[in] order
+@return vector of vectors, each containing timbers of the same height
+*/
+std::vector< timberv_t >
+Levels( timberv_t& order);
+
 }
 

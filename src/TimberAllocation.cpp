@@ -34,14 +34,22 @@ int cTimber::ParseSpaceDelimited(
         throw std::runtime_error(" Error reading: " + l );
 }
 
+std::string cTimber::text()
+{
+     std::stringstream ss;
+     ss <<  myLength <<" "<< myWidth <<" "<< myHeight <<" "<< myUserID;
+     return ss.str();
+}
+
 void cInstance::read(
+    cInventory& Inventory,
     const std::string& fname )
 {
     std::ifstream f( fname );
     if( ! f.is_open() )
         throw std::runtime_error("Cannot read instance file " + fname );
 
-    myInventory.clear();
+    Inventory.clear();
     myOrder.clear();
 
     // loop over lines in file
@@ -53,19 +61,19 @@ void cInstance::read(
         switch ( T->ParseSpaceDelimited( line ) )
         {
         case 0:     // inventory
-            myInventory.push_back( T );
+            Inventory.add( T );
             break;
         case 1:     // demand
             myOrder.push_back( T );
             break;
         }
     }
+    Inventory.expandCount();
     expandCount();
 }
 
 void cInstance::expandCount()
 {
-    expandCount( myInventory );
     expandCount( myOrder );
 }
 void cInstance::expandCount( timberv_t& tv )
@@ -83,40 +91,12 @@ void cInstance::expandCount( timberv_t& tv )
         ex.begin(), ex.end() );
 }
 
-std::string cInstance::text()
-{
-    std::stringstream ss;
-    ss << "Stock contains " << myInventory.size()  << " timbers\n"
-       << "Sheet inventory " << mySheet.size() << "\n"
-       << "Scrap inventory " << myScrap.size() << "\n"
-       << "Order demands " << myOrder.size() << " timbers\n";
-    return ss.str();
-}
 
-void cInstance::sortInventory( int sheetHeight, int scrapWidth )
-{
-    // rotate, if neccesary, so L > W > H
-    for( auto t : myInventory )
-    {
-        t->rotateLWH();
-    }
-
-    // assign inventory timbers to sub inventories
-    for( auto t : myInventory )
-    {
-        if( t->myWidth > scrapWidth && t->myHeight > sheetHeight )
-            myStock.push_back( t );
-        else if ( t->myWidth > scrapWidth )
-            mySheet.push_back( t );
-        else
-            myScrap.push_back( t );
-    }
-}
 
 }
 int main( int argc, char* argv[] )
 {
-    cout << "TimberAllocation1" << endl;
+    cout << "TimberAllocation" << endl;
 
     if( argc != 2 )
     {
@@ -127,10 +107,13 @@ int main( int argc, char* argv[] )
     try
     {
         ta::cInstance I;
-        I.read( argv[1] );
-        std::cout << I.text();
-        I.sortInventory( 1000, 100 );
-        std::cout << I.text();
+        ta::cInventory theInventory;
+        I.read( theInventory, argv[1] );
+
+        theInventory.sortInventory( 1000, 100 );
+        //std::cout << theInventory.text();
+
+        auto levels = Levels( I.myOrder );
     }
     catch( std::runtime_error& e )
     {
