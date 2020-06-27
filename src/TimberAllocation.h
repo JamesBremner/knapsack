@@ -92,7 +92,8 @@ public:
         cInventory& Inventory,
         const std::string& fname );
 
-    std::string text();
+    std::string textProblem();
+    std::string textSolution();
 
     /** Expand multiple timbers
         @param[in] tv vector of timbers
@@ -101,6 +102,7 @@ public:
 
 
     timberv_t myOrder;          /// the timbers that have to be delivered
+    std::vector<std::pair<timber_t,timber_t>> myAllocation;
 
 private:
 
@@ -119,6 +121,11 @@ private:
 */
 std::vector< timberv_t >
 Levels( timberv_t& order);
+
+std::vector<std::pair<timber_t,timber_t>>
+LevelsToStock(
+    std::vector< timberv_t >& levels,
+    timberv_t& stock );
 
 }
 

@@ -41,6 +41,7 @@ std::string cTimber::text()
      return ss.str();
 }
 
+
 void cInstance::read(
     cInventory& Inventory,
     const std::string& fname )
@@ -91,6 +92,16 @@ void cInstance::expandCount( timberv_t& tv )
         ex.begin(), ex.end() );
 }
 
+std::string cInstance::textSolution()
+{
+    std::stringstream ss;
+    for( auto& a : myAllocation ) {
+        ss << "a " << a.first->myUserID
+            <<" "<< a.second->myUserID << "\n";
+    }
+    return ss.str();
+}
+
 
 
 }
@@ -108,12 +119,21 @@ int main( int argc, char* argv[] )
     {
         ta::cInstance I;
         ta::cInventory theInventory;
+
+        // read problem instance file
         I.read( theInventory, argv[1] );
 
+        // sort inventory into stock, sheets and scraps
         theInventory.sortInventory( 1000, 100 );
-        //std::cout << theInventory.text();
 
+        // sort orders into levels of the same height
         auto levels = Levels( I.myOrder );
+
+        // allocate orders to stock
+        I.myAllocation = LevelsToStock( levels, theInventory.myStock );
+
+        // display solution
+        std::cout << I.textSolution();
     }
     catch( std::runtime_error& e )
     {
