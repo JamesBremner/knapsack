@@ -84,6 +84,21 @@ public:
     timberv_t mySheet;          /// inventory for 2D cutting
     timberv_t myStock;          /// invemtory for 3D cutting
 };
+class cCut
+{
+public:
+    timber_t myStock;
+    char myDirection;
+    int myLocation;
+    cCut( timber_t stock, char D, int loc )
+    : myStock( stock )
+    , myDirection( D )
+    , myLocation( loc )
+    {
+
+    }
+    std::string text();
+};
 
 class cInstance
 {
@@ -102,7 +117,10 @@ public:
 
 
     timberv_t myOrder;          /// the timbers that have to be delivered
+
     std::vector<std::pair<timber_t,timber_t>> myAllocation;
+
+    std::vector< cCut > myCut;
 
 private:
 
@@ -122,8 +140,9 @@ private:
 std::vector< timberv_t >
 Levels( timberv_t& order);
 
-std::vector<std::pair<timber_t,timber_t>>
+void
 LevelsToStock(
+    cInstance& I,
     std::vector< timberv_t >& levels,
     timberv_t& stock );
 

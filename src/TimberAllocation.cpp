@@ -96,12 +96,22 @@ std::string cInstance::textSolution()
 {
     std::stringstream ss;
     for( auto& a : myAllocation ) {
-        ss << "a " << a.first->myUserID
-            <<" "<< a.second->myUserID << "\n";
+        ss << "a " << a.second->myUserID
+            <<" "<< a.first->myUserID << "\n";
+    }
+    for( auto& c : myCut )
+    {
+        ss << c.text() << "\n";
     }
     return ss.str();
 }
 
+std::string cCut::text()
+{
+    stringstream ss;
+    ss << "c " << myStock->myUserID << " " << myDirection <<" "<< myLocation;
+    return ss.str();
+}
 
 
 }
@@ -130,7 +140,7 @@ int main( int argc, char* argv[] )
         auto levels = Levels( I.myOrder );
 
         // allocate orders to stock
-        I.myAllocation = LevelsToStock( levels, theInventory.myStock );
+        LevelsToStock( I, levels, theInventory.myStock );
 
         // display solution
         std::cout << I.textSolution();

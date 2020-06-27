@@ -52,12 +52,12 @@ Levels( timberv_t& order)
     return vlevel;
 }
 
-std::vector<std::pair<timber_t,timber_t>>
-LevelsToStock(
+void LevelsToStock(
+    cInstance& I,
     std::vector< timberv_t >& levels,
     timberv_t& stock )
 {
-    std::vector<std::pair<timber_t,timber_t>> allocation;
+
 
     for ( auto& level : levels )
     {
@@ -65,6 +65,7 @@ LevelsToStock(
 //        int least_stock_height = std::numeric_limits<int>::max();
         timber_t best_stock = stock[0];
         int level_height = level[0]->myHeight;
+        bool found = false;
         for( timber_t t : stock )
         {
             int stockHeight = t->myHeight;
@@ -72,6 +73,7 @@ LevelsToStock(
                 continue;
             if( stockHeight == level_height )
             {
+                found = true;
                 least_waste = 0;
                 best_stock = t;
                 break;
@@ -79,19 +81,29 @@ LevelsToStock(
             int waste = stockHeight % level_height;
             if( waste < least_waste )
             {
+                found = true;
                 least_waste = waste;
                 best_stock = t;
+
+                std::cout << best_stock->myUserID << " " << waste << "\n";
             }
         }
+        if( ! found )
+            throw std::runtime_error("Cannot allocate");
+
         std::cout << "level " << level_height << " stock " << best_stock->text() << "\n";
 
         for( timber_t o : level )
         {
-            allocation.push_back( std::make_pair( o, best_stock ));
-
-            //std::cout << "a " << o->myUserID <<" "<< best_stock->myUserID << "\n";
+            I.myAllocation.push_back( std::make_pair( o, best_stock ));
         }
-    }
-    return allocation;
+        for( int cut = level_height; cut < best_stock->myHeight; cut += level_height )
+        {
+            I.myCut.push_back( cCut(
+                                   best_stock,
+                                   'H',
+                                   cut ));
+        }
+    }   // end loop over levels
 }
 }
