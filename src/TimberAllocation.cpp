@@ -23,7 +23,7 @@ int cTimber::ParseSpaceDelimited(
     myLength = atoi(token[1].c_str());
     myWidth = atoi(token[2].c_str());
     myHeight = atoi(token[3].c_str());
-    myDemand = atoi(token[4].c_str());
+    myCount = atoi(token[4].c_str());
     myUserID = token[5];
 
     if( token[0] == "i" )
@@ -60,18 +60,22 @@ void cInstance::read(
             break;
         }
     }
-    expandDemand( myInventory );
-    expandDemand( myOrder );
+    expandCount();
 }
 
-void cInstance::expandDemand( timberv_t& tv )
+void cInstance::expandCount()
+{
+    expandCount( myInventory );
+    expandCount( myOrder );
+}
+void cInstance::expandCount( timberv_t& tv )
 {
     timberv_t ex;
     for( auto& t : tv )
     {
-        if( t->myDemand <= 0 )
-            throw std::runtime_error("Bad demand for " + t->myUserID );
-        for( int k = 0; k < t->myDemand-1; k++ )
+        if( t->myCount <= 0 )
+            throw std::runtime_error("Bad count for " + t->myUserID );
+        for( int k = 0; k < t->myCount-1; k++ )
             ex.push_back( timber_t( new cTimber( *t.get() )));
     }
     tv.insert(
@@ -97,38 +101,19 @@ void cInstance::sortInventory( int sheetHeight, int scrapWidth )
         t->rotateLWH();
     }
 
-    // find sheets
+    // assign inventory timbers to sub inventories
     for( auto t : myInventory )
-        if( t->myHeight < sheetHeight )
+    {
+        if( t->myWidth > scrapWidth && t->myHeight > sheetHeight )
+            myStock.push_back( t );
+        else if ( t->myWidth > scrapWidth )
             mySheet.push_back( t );
-    myInventory.erase(
-        remove_if(
-            myInventory.begin(),
-            myInventory.end(),
-            [ sheetHeight ] ( timber_t t )
-    {
-        return( t->myHeight < sheetHeight );
-    } ),
-    myInventory.end() );
-
-
-    // find scraps
-    for( auto t : mySheet )
-        if( t->myWidth < scrapWidth )
+        else
             myScrap.push_back( t );
-    myInventory.erase(
-        remove_if(
-            mySheet.begin(),
-            mySheet.end(),
-            [ scrapWidth ] ( timber_t t )
-    {
-        return( t->myWidth < scrapWidth );
-    } ),
-    mySheet.end() );
+    }
 }
 
 }
-
 int main( int argc, char* argv[] )
 {
     cout << "TimberAllocation1" << endl;

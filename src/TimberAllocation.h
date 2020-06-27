@@ -52,7 +52,7 @@ public:
 
 
     std::string myUserID;
-    int myDemand;
+    int myCount;
 
 };
 class cInstance
@@ -60,18 +60,30 @@ class cInstance
 public:
     void read( const std::string& fname );
     std::string text();
+
+    /** Sort inventory into stock, sheets and scraps
+        @param[in] sheetHeight maximum sheet height
+        @param[in] scrapWidth maximum scrap width
+    */
     void sortInventory( int sheetHeight, int scrapWidth );
 
 
 private:
-    timberv_t myInventory;
-    timberv_t myOrder;
-    timberv_t myScrap;
-    timberv_t mySheet;
+    timberv_t myInventory;      /// inentory ( all timbers labeled 'i' in the instance file )
+    timberv_t myOrder;          /// the timbers that have to be delivered
+    timberv_t myScrap;          /// inventory fpr 1D cutting
+    timberv_t mySheet;          /// inventory for 2D cutting
+    timberv_t myStock;          /// invemtory for 3D cutting
+
+    /// Parse a line in the instance file
     std::vector< int > ParseSpaceDelimited(
         const std::string& l );
-    void add( std::vector< int > );
-    void expandDemand( timberv_t& tv );
+
+    /** Expand multiple timbers
+        @param[in] tv vector of timbers
+    */
+    void expandCount();
+    void expandCount( timberv_t& tv );
 };
 }
 
