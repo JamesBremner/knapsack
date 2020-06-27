@@ -41,6 +41,14 @@ std::string cTimber::text()
      return ss.str();
 }
 
+void cTimber::pack( int l, int w, int h, timber_t stock )
+{
+    myPacked = true;
+    myLocL = l;
+    myLocW = w;
+    myLocH = h;
+    myStock = stock;
+}
 
 void cInstance::read(
     cInventory& Inventory,
@@ -139,8 +147,10 @@ int main( int argc, char* argv[] )
         // sort orders into levels of the same height
         auto levels = Levels( I.myOrder );
 
-        // allocate orders to stock
+        // allocate levels to stock
         LevelsToStock( I, levels, theInventory.myStock );
+
+        LevelCuts( I, levels );
 
         // display solution
         std::cout << I.textSolution();

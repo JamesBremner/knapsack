@@ -41,6 +41,7 @@ class cTimber : public cSpace
 public:
     cTimber()
         : cSpace( 0, 0, 0 )
+        , myPacked( false )
     {
 
     }
@@ -52,11 +53,16 @@ public:
     int ParseSpaceDelimited(
         const std::string& l );
 
+    void pack( int l, int w, int h, timber_t stock );
+
     std::string text();
 
     std::string myUserID;
     int myCount;
 
+private:
+    bool myPacked;
+    timber_t myStock;
 };
 
 class cInventory
@@ -91,13 +97,24 @@ public:
     char myDirection;
     int myLocation;
     cCut( timber_t stock, char D, int loc )
-    : myStock( stock )
-    , myDirection( D )
-    , myLocation( loc )
+        : myStock( stock )
+        , myDirection( D )
+        , myLocation( loc )
     {
 
     }
     std::string text();
+};
+
+class cLevel
+{
+public:
+    timberv_t myOrder;
+    timber_t  myStock;
+    int height()
+    {
+        return myOrder[0]->myHeight;
+    }
 };
 
 class cInstance
@@ -135,16 +152,51 @@ private:
 };
 /** allocate tombers of same height to levels
 @param[in] order
-@return vector of vectors, each containing timbers of the same height
+@return vector of levels, each containing timbers of the same height
 */
-std::vector< timberv_t >
+std::vector< cLevel >
 Levels( timberv_t& order);
 
+/** allocate levels to stock
+    @param[out] I the instance
+    @param[in] levels
+    @param[in] stock inventory
+*/
 void
 LevelsToStock(
     cInstance& I,
-    std::vector< timberv_t >& levels,
+    std::vector< cLevel >& levels,
     timberv_t& stock );
 
+/** cut out the orders
+    @param[out] I the instance
+    @param[in] levels
+*/
+void LevelCuts(
+    cInstance& I,
+    std::vector< cLevel >& levels );
+
+/** Cutting stock 2 dimensional no width
+    @param[out] I the instance
+    @param[in level
+    @param[in] h height in stock
+
+    This is an extremely simple 2D cutting stock algorithm
+    to be used as a placeholder in the H3CS algorithm.
+
+    Currently it does not provide an interface allowing
+    levels to be stacked, not for a level to be distributed
+    over multiple stock timbers.  I will be adding this.
+
+    This makes no effort to stack in the width dimension.
+
+    The effect is that this will fail if all the orders in
+    a level cannot be cut in one line along the bottom of the
+    allocated stock timber.  Even if it does not fail, the wastage is
+    likely to be enormous!
+*/
+void CS2LNW(
+          cInstance& I,
+          cLevel& level, int h );
 }
 

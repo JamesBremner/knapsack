@@ -8,7 +8,7 @@
 
 namespace ta
 {
-std::vector< timberv_t >
+std::vector< cLevel >
 Levels( timberv_t& order)
 {
     // rotate, if neccesary, so L > W > H
@@ -25,7 +25,7 @@ Levels( timberv_t& order)
     });
 
     // allocate items of same height to a level
-    std::vector< timberv_t > vlevel;
+    std::vector< cLevel > levels;
     int h_level = -1;
     for( timber_t t : order )
     {
@@ -33,28 +33,28 @@ Levels( timberv_t& order)
         {
             // create a new level
             h_level = t->myHeight;
-            timberv_t level;
-            vlevel.push_back( level );
+            cLevel level;
+            levels.push_back( level );
         }
 
         // add to current level
-        vlevel.back().push_back( t );
+        levels.back().myOrder.push_back( t );
     }
 
-    for( auto& l : vlevel )
-    {
-        std::cout <<"\nLEVEL\n";
-        for( timber_t t : l )
-        {
-            std::cout << t->text() << "\n";
-        }
-    }
-    return vlevel;
+//    for( auto& l : vlevel )
+//    {
+//        std::cout <<"\nLEVEL\n";
+//        for( timber_t t : l )
+//        {
+//            std::cout << t->text() << "\n";
+//        }
+//    }
+    return levels;
 }
 
 void LevelsToStock(
     cInstance& I,
-    std::vector< timberv_t >& levels,
+    std::vector< cLevel >& levels,
     timberv_t& stock )
 {
 
@@ -64,7 +64,7 @@ void LevelsToStock(
         int least_waste = std::numeric_limits<int>::max();
 //        int least_stock_height = std::numeric_limits<int>::max();
         timber_t best_stock = stock[0];
-        int level_height = level[0]->myHeight;
+        int level_height = level.height();
         bool found = false;
         for( timber_t t : stock )
         {
@@ -85,7 +85,7 @@ void LevelsToStock(
                 least_waste = waste;
                 best_stock = t;
 
-                std::cout << best_stock->myUserID << " " << waste << "\n";
+                //std::cout << best_stock->myUserID << " " << waste << "\n";
             }
         }
         if( ! found )
@@ -93,7 +93,8 @@ void LevelsToStock(
 
         std::cout << "level " << level_height << " stock " << best_stock->text() << "\n";
 
-        for( timber_t o : level )
+        level.myStock = best_stock;
+        for( timber_t o : level.myOrder )
         {
             I.myAllocation.push_back( std::make_pair( o, best_stock ));
         }
@@ -105,5 +106,54 @@ void LevelsToStock(
                                    cut ));
         }
     }   // end loop over levels
+}
+void LevelCuts(
+    cInstance& I,
+    std::vector< cLevel >& levels )
+{
+    for( cLevel& level : levels )
+    {
+        for( int h = 0; h < level.myStock->myHeight; h += level.height() )
+        {
+            CS2LNW( I, level, h );
+        }
+    }
+}
+void CS2LNW(
+    cInstance& I,
+    cLevel& level, int h )
+{
+    std::sort(
+        level.myOrder.begin(), level.myOrder.end(),
+        []( timber_t a, timber_t b )
+    {
+        return ( a->myLength < b->myLength );
+    });
+
+    int L = level.myStock->myLength;
+    bool allPacked = true;
+    for( timber_t t : level.myOrder )
+    {
+        if( L < t->myLength )
+        {
+            allPacked = false;
+            break;
+        }
+        if( t->myWidth > level.myStock->myLength )
+            throw std::runtime_error( "CS2LNW failed to width pack" );
+
+        // order will fit into remainder of stock
+        t->pack( L, 0, h, level.myStock  );
+        int loc = level.myStock->myLength - L;
+        if( 0 < loc && loc < level.myStock->myLength )
+            I.myCut.push_back( cCut(
+                                   level.myStock,
+                                   'L',
+                                   level.myStock->myLength - L ));
+
+        L -= t->myLength;
+    }
+    if( ! allPacked )
+        throw std::runtime_error( "CS2LNW failed to stack levels" );
 }
 }
