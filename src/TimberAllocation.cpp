@@ -8,143 +8,6 @@
 
 using namespace std;
 
-namespace ta
-{
-
-int cTimber::ParseSpaceDelimited(
-    const std::string& l )
-{
-    std::vector< std::string > token;
-    std::stringstream sst(l);
-    std::string a;
-    while( getline( sst, a, ' ' ) )
-        token.push_back( a );
-    if( token.size() < 6 )
-        throw std::runtime_error(" Error reading: " + l );
-    myLength = atoi(token[1].c_str());
-    myWidth = atoi(token[2].c_str());
-    myHeight = atoi(token[3].c_str());
-    myCount = atoi(token[4].c_str());
-    myUserID = token[5];
-
-    if( token[0] == "i" )
-        return 0;
-    else  if( token[0] == "d" )
-        return 1;
-    else
-        throw std::runtime_error(" Error reading: " + l );
-}
-
-std::string cTimber::text()
-{
-    std::stringstream ss;
-    ss <<  myLength <<" "<< myWidth <<" "<< myHeight <<" "<< myUserID;
-    return ss.str();
-}
-
-void cTimber::pack( int l, int w, int h, timber_t stock )
-{
-    std::cout << "packing " << myUserID << " into " << stock->myUserID << "\n";
-    myPacked = true;
-    myLocL = l;
-    myLocW = w;
-    myLocH = h;
-    myStock = stock;
-}
-
-void cInstance::read(
-    cInventory& Inventory,
-    const std::string& fname )
-{
-    std::ifstream f( fname );
-    if( ! f.is_open() )
-        throw std::runtime_error("Cannot read instance file " + fname );
-
-    Inventory.clear();
-    myOrder.clear();
-
-    // loop over lines in file
-    std::string line;
-    while( std::getline( f, line ) )
-    {
-        //std::cout << lcount << " " << line << "\n";
-        timber_t T( new cTimber() );
-        switch ( T->ParseSpaceDelimited( line ) )
-        {
-        case 0:     // inventory
-            Inventory.add( T );
-            break;
-        case 1:     // demand
-            myOrder.push_back( T );
-            break;
-        }
-    }
-    Inventory.expandCount();
-    expandCount();
-}
-
-void cInstance::expandCount()
-{
-    expandCount( myOrder );
-}
-void cInstance::expandCount( timberv_t& tv )
-{
-    timberv_t ex;
-    for( auto& t : tv )
-    {
-        if( t->myCount <= 0 )
-            throw std::runtime_error("Bad count for " + t->myUserID );
-
-        // construct required number of copies, append copy number to userID
-        for( int k = 0; k < t->myCount-1; k++ )
-        {
-            timber_t newTimber( new cTimber( *t.get() ) );
-            newTimber->myUserID = t->myUserID + ":" + std::to_string( k+2 );
-            ex.push_back( newTimber );
-        }
-    }
-    tv.insert(
-        tv.end(),
-        ex.begin(), ex.end() );
-}
-
-std::string cInstance::textSolution()
-{
-    std::stringstream ss;
-    for( auto& a : myAllocation )
-    {
-        ss << "a " << a.second->myUserID
-           <<" "<< a.first->myUserID << "\n";
-    }
-    for( auto& c : myCut )
-    {
-        ss << c.text() << "\n";
-    }
-    for( auto& u : myUnpacked )
-    {
-        ss << "u " << u->myUserID << "\n";
-    }
-    return ss.str();
-}
-
-void cInstance::addUnpacked( timberv_t& unpacked )
-{
-    myUnpacked.insert(
-        myUnpacked.end(),
-        unpacked.begin(), unpacked.end() );
-}
-
-std::string cCut::text()
-{
-    stringstream ss;
-    ss << "c " << myStock->myUserID << " "
-       << myDirection <<" "<< myLocation <<" "
-       << myLevelHeight;
-    return ss.str();
-}
-
-
-}
 int main( int argc, char* argv[] )
 {
     cout << "TimberAllocation" << endl;
@@ -167,12 +30,13 @@ int main( int argc, char* argv[] )
         theInventory.sortInventory( 100, 100 );
 
         // sort orders into levels of the same height
-        auto levels = Levels( I.myOrder );
+        auto levels = Levels( I );
 
         // allocate levels to stock
-        LevelsToStock( I, levels, theInventory.myStock );
+        LevelsToStock( I, levels, theInventory );
 
-        LevelCuts( I, levels, theInventory.myStock );
+        // cut out orders from stock by level
+        LevelCuts( I, levels, theInventory );
 
         // display solution
         std::cout << I.textSolution();

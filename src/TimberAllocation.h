@@ -176,11 +176,11 @@ private:
     void expandCount();
 };
 /** allocate tombers of same height to levels
-@param[in] order
+@param[in] I the problem instance
 @return vector of levels, each containing timbers of the same height
 */
 std::vector< cLevel >
-Levels( timberv_t& order);
+Levels( cInstance& I );
 
 /** allocate levels to stock
     @param[out] I the instance
@@ -191,7 +191,7 @@ void
 LevelsToStock(
     cInstance& I,
     std::vector< cLevel >& levels,
-    timberv_t& stock );
+    cInventory& inventory );
 
 /** allocate a level to a stock
     @param[out] I the instance
@@ -212,7 +212,7 @@ LevelToStock(
 void LevelCuts(
     cInstance& I,
     std::vector< cLevel >& levels,
-    timberv_t& stock );
+    cInventory& inventory );
 
 /** Cutting stock 2 dimensional no width
     @param[out] I the instance

@@ -8,9 +8,21 @@
 
 namespace ta
 {
-std::vector< cLevel >
-Levels( timberv_t& order)
+
+    std::string cCut::text()
 {
+    std::stringstream ss;
+    ss << "c " << myStock->myUserID << " "
+       << myDirection <<" "<< myLocation <<" "
+       << myLevelHeight;
+    return ss.str();
+}
+
+std::vector< cLevel >
+Levels( cInstance& I )
+{
+    timberv_t& order = I.myOrder;
+
     // rotate, if neccesary, so L > W > H
     for( auto t : order )
     {
@@ -50,11 +62,11 @@ Levels( timberv_t& order)
 void LevelsToStock(
     cInstance& I,
     std::vector< cLevel >& levels,
-    timberv_t& stock )
+    cInventory& inventory )
 {
     for ( auto& level : levels )
     {
-        LevelToStock( I, level, stock );
+        LevelToStock( I, level, inventory.myStock );
     }
 }
 
@@ -124,7 +136,7 @@ LevelToStock(
 void LevelCuts(
     cInstance& I,
     std::vector< cLevel >& levels,
-    timberv_t& stock )
+    cInventory& inventory )
 {
     bool allPacked;
     // loop over levels
@@ -166,7 +178,7 @@ void LevelCuts(
         if( ! allPacked )
         {
             // stock timber exhausted, need to allocate another
-            if( ! LevelToStock( I, level, stock ) )
+            if( ! LevelToStock( I, level, inventory.myStock ) )
             {
                 // no suitable stock available
                 I.addUnpacked( level.myOrder );
