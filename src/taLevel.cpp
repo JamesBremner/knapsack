@@ -23,11 +23,14 @@ void cLevel::removePacked()
 std::string cLevel::text() const
 {
     std::stringstream ss;
-    ss <<"\nLEVEL " << height() <<" ";
+    ss <<"level " << height() <<" ( ";
     for( timber_t t : myOrder )
     {
-        ss << t->myUserID << "\n";
+        ss << t->myUserID << " ";
     }
+    ss << ") ";
+    if( myStock )
+        ss << "stock " << myStock->myUserID;
     return ss.str();
 }
 }

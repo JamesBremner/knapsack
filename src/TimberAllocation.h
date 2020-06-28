@@ -42,6 +42,7 @@ public:
     cTimber()
         : cSpace( 0, 0, 0 )
         , myPacked( false )
+        , myUsed( false )
     {
 
     }
@@ -62,11 +63,21 @@ public:
         return myPacked;
     }
 
+    void setUsed()
+    {
+        myUsed = true;
+    }
+    bool isUsed() const
+    {
+        return myUsed;
+    }
+
     std::string myUserID;
     int myCount;
 
 private:
     bool myPacked;
+    bool myUsed;
     timber_t myStock;
 };
 
@@ -142,6 +153,8 @@ public:
     */
     static void expandCount( timberv_t& tv );
 
+    void addUnpacked( timberv_t& unpacked );
+
 
     timberv_t myOrder;          /// the timbers that have to be delivered
 
@@ -150,6 +163,8 @@ public:
     std::vector< cCut > myCut;
 
 private:
+
+    timberv_t myUnpacked;
 
     /// Parse a line in the instance file
     std::vector< int > ParseSpaceDelimited(
@@ -178,13 +193,26 @@ LevelsToStock(
     std::vector< cLevel >& levels,
     timberv_t& stock );
 
+/** allocate a level to a stock
+    @param[out] I the instance
+    @param[in] level
+    @param[in] stock inventory
+    @return true if allocation successful
+*/
+bool
+LevelToStock(
+    cInstance& I,
+    cLevel& level,
+    timberv_t& stock );
+
 /** cut out the orders
     @param[out] I the instance
     @param[in] levels
 */
 void LevelCuts(
     cInstance& I,
-    std::vector< cLevel >& levels );
+    std::vector< cLevel >& levels,
+    timberv_t& stock );
 
 /** Cutting stock 2 dimensional no width
     @param[out] I the instance
@@ -195,16 +223,11 @@ void LevelCuts(
     This is an extremely simple 2D cutting stock algorithm
     to be used as a placeholder in the H3CS algorithm.
 
-    Currently it does not provide an interface allowing
-    a level to be distributed
-    over multiple stock timbers.  I will be adding this.
+    This makes no effort to stack in the width dimension!
 
-    This makes no effort to stack in the width dimension.
-
-    The effect is that this will fail if all the orders in
-    a level cannot be cut in one line along the bottom of the
-    allocated stock timber.  Even if it does not fail, the wastage is
-    likely to be enormous!
+    The effect is that the orders will be cut from each level
+    in one line along the side of the stock timbers.
+    The wastage is likely to be enormous!
 */
 bool CS2LNW(
           cInstance& I,

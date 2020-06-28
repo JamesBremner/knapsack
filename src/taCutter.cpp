@@ -41,8 +41,8 @@ Levels( timberv_t& order)
         levels.back().myOrder.push_back( t );
     }
 
-//    for( cLevel& l : levels )
-//        std::cout << l.text();
+    for( cLevel& l : levels )
+        std::cout << l.text() <<"\n";
 
     return levels;
 }
@@ -52,70 +52,94 @@ void LevelsToStock(
     std::vector< cLevel >& levels,
     timberv_t& stock )
 {
-
-
     for ( auto& level : levels )
     {
-        int least_waste = std::numeric_limits<int>::max();
-//        int least_stock_height = std::numeric_limits<int>::max();
-        timber_t best_stock = stock[0];
-        int level_height = level.height();
-        bool found = false;
-        for( timber_t t : stock )
-        {
-            int stockHeight = t->myHeight;
-            if( stockHeight < level_height )
-                continue;
-            if( stockHeight == level_height )
-            {
-                found = true;
-                least_waste = 0;
-                best_stock = t;
-                break;
-            }
-            int waste = stockHeight % level_height;
-            if( waste < least_waste )
-            {
-                found = true;
-                least_waste = waste;
-                best_stock = t;
-
-                //std::cout << best_stock->myUserID << " " << waste << "\n";
-            }
-        }
-        if( ! found )
-            throw std::runtime_error("Cannot allocate");
-
-        //std::cout << "level " << level_height << " stock " << best_stock->text() << "\n";
-
-        level.myStock = best_stock;
-        for( timber_t o : level.myOrder )
-        {
-            I.myAllocation.push_back( std::make_pair( o, best_stock ));
-        }
-        for( int cut = level_height; cut < best_stock->myHeight; cut += level_height )
-        {
-            I.myCut.push_back( cCut(
-                                   best_stock,
-                                   'H',
-                                   cut,
-                                   cut ));
-        }
-    }   // end loop over levels
+        LevelToStock( I, level, stock );
+    }
 }
+
+bool
+LevelToStock(
+    cInstance& I,
+    cLevel& level,
+    timberv_t& stock )
+{
+    if( ! stock.size() )
+        throw std::runtime_error("No stock");
+
+    int least_waste = std::numeric_limits<int>::max();
+//        int least_stock_height = std::numeric_limits<int>::max();
+    timber_t best_stock = stock[0];
+    int level_height = level.height();
+    bool found = false;
+    for( timber_t t : stock )
+    {
+        if( t->isUsed() )
+            continue;
+
+        int stockHeight = t->myHeight;
+        if( stockHeight < level_height )
+            continue;
+        if( stockHeight == level_height )
+        {
+            found = true;
+            least_waste = 0;
+            best_stock = t;
+            break;
+        }
+        int waste = stockHeight % level_height;
+        if( waste < least_waste )
+        {
+            found = true;
+            least_waste = waste;
+            best_stock = t;
+
+            //std::cout << best_stock->myUserID << " " << waste << "\n";
+        }
+    }
+
+    // check for no stock available
+    if( ! found )
+        return false;
+
+    std::cout << "level " << level_height
+        << " allocated stock " << best_stock->text() << "\n";
+
+    level.myStock = best_stock;
+    for( timber_t o : level.myOrder )
+    {
+        I.myAllocation.push_back( std::make_pair( o, best_stock ));
+    }
+    for( int cut = level_height; cut < best_stock->myHeight; cut += level_height )
+    {
+        I.myCut.push_back( cCut(
+                               best_stock,
+                               'H',
+                               cut,
+                               cut ));
+    }
+    return true;
+}
+
 void LevelCuts(
     cInstance& I,
-    std::vector< cLevel >& levels )
+    std::vector< cLevel >& levels,
+    timberv_t& stock )
 {
+    bool allPacked;
     // loop over levels
     for( cLevel& level : levels )
     {
+        std::cout << "cutting level " << level.text() << "\n";
+
+        do {
         /* stack levels
 
         If not all the orders in a level can be fitted into the stock timber
         at one level, perhaps the stock can be cut into several levels to fit them
 
         */
+        allPacked = false;
         for(
             int h = 0;                      // start at the bottom
             h < level.myStock->myHeight;    // does stock have enough height to stack another level?
@@ -125,6 +149,7 @@ void LevelCuts(
             if(  CS2LNW( I, level, h ) )
             {
                 // all timbers in this level are packed
+                allPacked = true;
                 break;
             }
 
@@ -132,7 +157,32 @@ void LevelCuts(
             level.removePacked();
 
         }
+
+        // flag the stock has been used
+        level.myStock->setUsed();
+
+        // TODO: return unused remainders to inventory
+
+        if( ! allPacked )
+        {
+            // stock timber exhausted, need to allocate another
+            if( ! LevelToStock( I, level, stock ) )
+            {
+                // no suitable stock available
+                I.addUnpacked( level.myOrder );
+                allPacked = true;
+            }
+        }
+
+        } while( ! allPacked );
     }
+    if( allPacked )
+    {
+        // success
+        return;
+    }
+
+
 }
 bool CS2LNW(
     cInstance& I,

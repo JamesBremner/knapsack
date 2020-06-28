@@ -37,13 +37,14 @@ int cTimber::ParseSpaceDelimited(
 
 std::string cTimber::text()
 {
-     std::stringstream ss;
-     ss <<  myLength <<" "<< myWidth <<" "<< myHeight <<" "<< myUserID;
-     return ss.str();
+    std::stringstream ss;
+    ss <<  myLength <<" "<< myWidth <<" "<< myHeight <<" "<< myUserID;
+    return ss.str();
 }
 
 void cTimber::pack( int l, int w, int h, timber_t stock )
 {
+    std::cout << "packing " << myUserID << " into " << stock->myUserID << "\n";
     myPacked = true;
     myLocL = l;
     myLocW = w;
@@ -93,8 +94,14 @@ void cInstance::expandCount( timberv_t& tv )
     {
         if( t->myCount <= 0 )
             throw std::runtime_error("Bad count for " + t->myUserID );
+
+        // construct required number of copies, append copy number to userID
         for( int k = 0; k < t->myCount-1; k++ )
-            ex.push_back( timber_t( new cTimber( *t.get() )));
+        {
+            timber_t newTimber( new cTimber( *t.get() ) );
+            newTimber->myUserID = t->myUserID + ":" + std::to_string( k+2 );
+            ex.push_back( newTimber );
+        }
     }
     tv.insert(
         tv.end(),
@@ -104,23 +111,35 @@ void cInstance::expandCount( timberv_t& tv )
 std::string cInstance::textSolution()
 {
     std::stringstream ss;
-    for( auto& a : myAllocation ) {
+    for( auto& a : myAllocation )
+    {
         ss << "a " << a.second->myUserID
-            <<" "<< a.first->myUserID << "\n";
+           <<" "<< a.first->myUserID << "\n";
     }
     for( auto& c : myCut )
     {
         ss << c.text() << "\n";
     }
+    for( auto& u : myUnpacked )
+    {
+        ss << "u " << u->myUserID << "\n";
+    }
     return ss.str();
+}
+
+void cInstance::addUnpacked( timberv_t& unpacked )
+{
+    myUnpacked.insert(
+        myUnpacked.end(),
+        unpacked.begin(), unpacked.end() );
 }
 
 std::string cCut::text()
 {
     stringstream ss;
     ss << "c " << myStock->myUserID << " "
-        << myDirection <<" "<< myLocation <<" "
-        << myLevelHeight;
+       << myDirection <<" "<< myLocation <<" "
+       << myLevelHeight;
     return ss.str();
 }
 
@@ -145,7 +164,7 @@ int main( int argc, char* argv[] )
         I.read( theInventory, argv[1] );
 
         // sort inventory into stock, sheets and scraps
-        theInventory.sortInventory( 1000, 100 );
+        theInventory.sortInventory( 100, 100 );
 
         // sort orders into levels of the same height
         auto levels = Levels( I.myOrder );
@@ -153,7 +172,7 @@ int main( int argc, char* argv[] )
         // allocate levels to stock
         LevelsToStock( I, levels, theInventory.myStock );
 
-        LevelCuts( I, levels );
+        LevelCuts( I, levels, theInventory.myStock );
 
         // display solution
         std::cout << I.textSolution();
