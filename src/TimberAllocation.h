@@ -196,7 +196,7 @@ void LevelCuts(
     to be used as a placeholder in the H3CS algorithm.
 
     Currently it does not provide an interface allowing
-    levels to be stacked, not for a level to be distributed
+    a level to be distributed
     over multiple stock timbers.  I will be adding this.
 
     This makes no effort to stack in the width dimension.
