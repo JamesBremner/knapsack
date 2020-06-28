@@ -57,6 +57,11 @@ public:
 
     std::string text();
 
+    bool isPacked() const
+    {
+        return myPacked;
+    }
+
     std::string myUserID;
     int myCount;
 
@@ -96,22 +101,27 @@ public:
     timber_t myStock;
     char myDirection;
     int myLocation;
-    cCut( timber_t stock, char D, int loc )
+    int myLevelHeight;
+    cCut( timber_t stock, char D, int loc, int levelHeight )
         : myStock( stock )
         , myDirection( D )
         , myLocation( loc )
+        , myLevelHeight( levelHeight )
     {
 
     }
     std::string text();
 };
 
+/// orders that have the same height
 class cLevel
 {
 public:
-    timberv_t myOrder;
-    timber_t  myStock;
-    int height()
+    timberv_t myOrder;      // orders
+    timber_t  myStock;      // stock allocated to level
+    void removePacked();    // remove orders that have been packed
+    std::string text() const;
+    int height() const
     {
         return myOrder[0]->myHeight;
     }
@@ -180,6 +190,7 @@ void LevelCuts(
     @param[out] I the instance
     @param[in level
     @param[in] h height in stock
+    @return true if all timbers in stock were packed
 
     This is an extremely simple 2D cutting stock algorithm
     to be used as a placeholder in the H3CS algorithm.
@@ -195,7 +206,7 @@ void LevelCuts(
     allocated stock timber.  Even if it does not fail, the wastage is
     likely to be enormous!
 */
-void CS2LNW(
+bool CS2LNW(
           cInstance& I,
           cLevel& level, int h );
 }

@@ -19,7 +19,8 @@ int cTimber::ParseSpaceDelimited(
     std::string a;
     while( getline( sst, a, ' ' ) )
         token.push_back( a );
-
+    if( token.size() < 6 )
+        throw std::runtime_error(" Error reading: " + l );
     myLength = atoi(token[1].c_str());
     myWidth = atoi(token[2].c_str());
     myHeight = atoi(token[3].c_str());
@@ -117,7 +118,9 @@ std::string cInstance::textSolution()
 std::string cCut::text()
 {
     stringstream ss;
-    ss << "c " << myStock->myUserID << " " << myDirection <<" "<< myLocation;
+    ss << "c " << myStock->myUserID << " "
+        << myDirection <<" "<< myLocation <<" "
+        << myLevelHeight;
     return ss.str();
 }
 

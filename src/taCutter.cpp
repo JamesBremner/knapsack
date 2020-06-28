@@ -41,14 +41,9 @@ Levels( timberv_t& order)
         levels.back().myOrder.push_back( t );
     }
 
-//    for( auto& l : vlevel )
-//    {
-//        std::cout <<"\nLEVEL\n";
-//        for( timber_t t : l )
-//        {
-//            std::cout << t->text() << "\n";
-//        }
-//    }
+//    for( cLevel& l : levels )
+//        std::cout << l.text();
+
     return levels;
 }
 
@@ -91,7 +86,7 @@ void LevelsToStock(
         if( ! found )
             throw std::runtime_error("Cannot allocate");
 
-        std::cout << "level " << level_height << " stock " << best_stock->text() << "\n";
+        //std::cout << "level " << level_height << " stock " << best_stock->text() << "\n";
 
         level.myStock = best_stock;
         for( timber_t o : level.myOrder )
@@ -103,6 +98,7 @@ void LevelsToStock(
             I.myCut.push_back( cCut(
                                    best_stock,
                                    'H',
+                                   cut,
                                    cut ));
         }
     }   // end loop over levels
@@ -111,15 +107,34 @@ void LevelCuts(
     cInstance& I,
     std::vector< cLevel >& levels )
 {
+    // loop over levels
     for( cLevel& level : levels )
     {
-        for( int h = 0; h < level.myStock->myHeight; h += level.height() )
+        /* stack levels
+
+        If not all the orders in a level can be fitted into the stock timber
+        at one level, perhaps the stock can be cut into several levels to fit them
+
+        */
+        for(
+            int h = 0;                      // start at the bottom
+            h < level.myStock->myHeight;    // does stock have enough height to stack another level?
+            h += level.height() )           // up one level
         {
-            CS2LNW( I, level, h );
+            // Use 2D cutting algorithm to cut orders from level.
+            if(  CS2LNW( I, level, h ) )
+            {
+                // all timbers in this level are packed
+                break;
+            }
+
+            // remove timbers from level that have been packed
+            level.removePacked();
+
         }
     }
 }
-void CS2LNW(
+bool CS2LNW(
     cInstance& I,
     cLevel& level, int h )
 {
@@ -134,6 +149,7 @@ void CS2LNW(
     bool allPacked = true;
     for( timber_t t : level.myOrder )
     {
+        //std::cout << L <<" "<< t->myLength << "\n";
         if( L < t->myLength )
         {
             allPacked = false;
@@ -144,16 +160,25 @@ void CS2LNW(
 
         // order will fit into remainder of stock
         t->pack( L, 0, h, level.myStock  );
-        int loc = level.myStock->myLength - L;
-        if( 0 < loc && loc < level.myStock->myLength )
-            I.myCut.push_back( cCut(
-                                   level.myStock,
-                                   'L',
-                                   level.myStock->myLength - L ));
+
+        // cut position, separating order from remainder of stock
+        int loc = level.myStock->myLength - L + t->myLength;
+
+        // check if cut is needed
+        if( loc < level.myStock->myLength )
+        {
+            // add to cutting list
+            cCut cut(
+                level.myStock,
+                'L',
+                loc,
+                h );
+            //std::cout << cut.text() << "\n\n";
+            I.myCut.push_back( cut );
+        }
 
         L -= t->myLength;
     }
-    if( ! allPacked )
-        throw std::runtime_error( "CS2LNW failed to stack levels" );
+    return allPacked;
 }
 }
