@@ -122,18 +122,7 @@ LevelToStock(
               << " allocated stock " << best_stock->text() << "\n";
 
     level.myStock = best_stock;
-    for( timber_t o : level.myOrder )
-    {
-        I.myAllocation.push_back( std::make_pair( o, best_stock ));
-    }
-    for( int cut = level_height; cut < best_stock->myHeight; cut += level_height )
-    {
-        I.myCut.push_back( cCut(
-                               best_stock,
-                               'H',
-                               cut,
-                               cut ));
-    }
+
     return true;
 }
 
@@ -280,16 +269,16 @@ bool CS2Pack2(
     // run the Pack2 engine
     Pack( E );
 
-    std::cout << "Pack2 cutlist\n";
-    for( auto& c : pack2::CutList( E ) )
-    {
-        for( int v : c )
-            std::cout << v << ", ";
-        std::cout << "\n";
-    }
-
-    std::cout << "\nPack2 csv\n";
-    std::cout << pack2::CSV( E );
+//    std::cout << "Pack2 cutlist\n";
+//    for( auto& c : pack2::CutList( E ) )
+//    {
+//        for( int v : c )
+//            std::cout << v << ", ";
+//        std::cout << "\n";
+//    }
+//
+//    std::cout << "\nPack2 csv\n";
+//    std::cout << pack2::CSV( E );
 
     int unpackedCount = 0;
     for( pack2::item_t item : E.items() )
@@ -297,10 +286,21 @@ bool CS2Pack2(
         if( ! item->isPacked() )
         {
             unpackedCount++;
+            if( unpackedCount == 1 )
+            {
+                CutLevel(
+                    I,
+                    level );
+            }
             continue;
         }
-        // order was cut
-        level.myOrder[ atoi( item->userID().c_str() ) ]->pack( item->locX(), item->locY(), h, level.myStock  );
+        // order  cut
+
+        CutOrder(
+            I,
+            level.myStock,
+            level.myOrder[ atoi( item->userID().c_str() ) ],
+            item->locX(), item->locY(), h );
     }
 
     // check for nothing packed
@@ -334,5 +334,25 @@ bool CS2Pack2(
     }
 
     return ( unpackedCount == 0 );
+}
+
+void CutOrder(
+    cInstance& I,
+    timber_t& stock,
+    timber_t& order,
+    int length, int width, int height )
+{
+    order->pack( length, width, height, stock );
+    I.myAllocation.push_back( std::make_pair( order, stock ));
+}
+void CutLevel(
+    cInstance& I,
+    cLevel& level )
+{
+    I.myCut.push_back( cCut(
+                           level.myStock,
+                           'H',
+                           level.height(),
+                           level.height() ));
 }
 }

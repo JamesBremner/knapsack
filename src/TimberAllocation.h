@@ -243,11 +243,21 @@ void LevelCuts(
     The wastage is likely to be enormous!
 */
 bool CS2LNW(
-          cInstance& I,
-          cLevel& level, int h );
+    cInstance& I,
+    cLevel& level, int h );
 
 bool CS2Pack2(
-          cInstance& I,
-          cLevel& level, int h );
+    cInstance& I,
+    cLevel& level, int h );
+
+void CutOrder(
+    cInstance& I,
+    timber_t& stock,
+    timber_t& order,
+    int length, int width, int height );
+
+void CutLevel(
+    cInstance& I,
+    cLevel& level );
 }
 
