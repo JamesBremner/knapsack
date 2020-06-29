@@ -1,5 +1,8 @@
 #pragma once
 
+//#define USE_CS2LNW
+#define USE_CS2Pack2
+
 namespace ta
 {
 
@@ -54,6 +57,12 @@ public:
     int ParseSpaceDelimited(
         const std::string& l );
 
+    /** Cut the order
+        @param[in] l length position
+        @param[in] w width position
+        @param[in] k height position
+        @param[in] stock timber from which order is cut
+    */
     void pack( int l, int w, int h, timber_t stock );
 
     std::string text();
@@ -135,6 +144,10 @@ public:
     int height() const
     {
         return myOrder[0]->myHeight;
+    }
+    int size() const
+    {
+        return (int) myOrder.size();
     }
 };
 
@@ -218,7 +231,7 @@ void LevelCuts(
     @param[out] I the instance
     @param[in level
     @param[in] h height in stock
-    @return true if all timbers in stock were packed
+    @return true if all timbers in level were packed
 
     This is an extremely simple 2D cutting stock algorithm
     to be used as a placeholder in the H3CS algorithm.
@@ -230,6 +243,10 @@ void LevelCuts(
     The wastage is likely to be enormous!
 */
 bool CS2LNW(
+          cInstance& I,
+          cLevel& level, int h );
+
+bool CS2Pack2(
           cInstance& I,
           cLevel& level, int h );
 }

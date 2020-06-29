@@ -33,12 +33,16 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="../../../pack2/src" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
 			<Add option="-static-libgcc" />
 			<Add option="-static" />
 		</Linker>
+		<Unit filename="../../../pack2/src/cCut.cpp" />
+		<Unit filename="../../../pack2/src/cShape.cpp" />
+		<Unit filename="../../../pack2/src/pack2.cpp" />
 		<Unit filename="../../src/TimberAllocation.cpp" />
 		<Unit filename="../../src/TimberAllocation.h" />
 		<Unit filename="../../src/taCutter.cpp" />

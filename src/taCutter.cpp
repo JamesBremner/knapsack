@@ -5,11 +5,12 @@
 #include <algorithm>
 #include <limits>
 #include "TimberAllocation.h"
+#include "pack2.h"
 
 namespace ta
 {
 
-    std::string cCut::text()
+std::string cCut::text()
 {
     std::stringstream ss;
     ss << "c " << myStock->myUserID << " "
@@ -112,10 +113,13 @@ LevelToStock(
 
     // check for no stock available
     if( ! found )
+    {
+        std::cout << "level " << level_height << " no stock available\n";
         return false;
+    }
 
-    std::cout << "level " << level_height
-        << " allocated stock " << best_stock->text() << "\n";
+    std::cout << "level " << level_height << " order count " << level.size()
+              << " allocated stock " << best_stock->text() << "\n";
 
     level.myStock = best_stock;
     for( timber_t o : level.myOrder )
@@ -144,49 +148,60 @@ void LevelCuts(
     {
         std::cout << "cutting level " << level.text() << "\n";
 
-        do {
-        /* stack levels
-
-        If not all the orders in a level can be fitted into the stock timber
-        at one level, perhaps the stock can be cut into several levels to fit them
-
-        */
-        allPacked = false;
-        for(
-            int h = 0;                      // start at the bottom
-            h < level.myStock->myHeight;    // does stock have enough height to stack another level?
-            h += level.height() )           // up one level
+        do
         {
-            // Use 2D cutting algorithm to cut orders from level.
-            if(  CS2LNW( I, level, h ) )
+            /* stack levels
+
+            If not all the orders in a level can be fitted into the stock timber
+            at one level, perhaps the stock can be cut into several levels to fit them
+
+            */
+            allPacked = false;
+            for(
+                int h = 0;                      // start at the bottom
+                h < level.myStock->myHeight;    // does stock have enough height to stack another level?
+                h += level.height() )           // up one level
             {
-                // all timbers in this level are packed
-                allPacked = true;
-                break;
+                // Use 2D cutting algorithm to cut orders from level.
+
+#ifdef USE_CS2LNW
+                allPacked = CS2LNW( I, level, h );
+#endif // USE_CS2LNW
+#ifdef USE_CS2Pack2
+                allPacked = CS2Pack2( I, level, h );
+#endif // CS2Pack2
+
+                if(  allPacked )
+                {
+                    // all timbers in this level are packed
+                    std::cout << "all timbers in this level are packed\n";
+                    allPacked = true;
+                    break;
+                }
+
+                // remove timbers from level that have been packed
+                level.removePacked();
+
+                // flag the stock has been used
+                level.myStock->setUsed();
+
+                // TODO: return unused remainders to inventory
+
+                if( ! allPacked )
+                {
+                    // stock timber exhausted, need to allocate another
+                    if( ! LevelToStock( I, level, inventory.myStock ) )
+                    {
+                        // no suitable stock available
+                        std::cout << " no suitable stock available\n";
+                        I.addUnpacked( level.myOrder );
+                        allPacked = true;
+                    }
+                }
+
             }
-
-            // remove timbers from level that have been packed
-            level.removePacked();
-
         }
-
-        // flag the stock has been used
-        level.myStock->setUsed();
-
-        // TODO: return unused remainders to inventory
-
-        if( ! allPacked )
-        {
-            // stock timber exhausted, need to allocate another
-            if( ! LevelToStock( I, level, inventory.myStock ) )
-            {
-                // no suitable stock available
-                I.addUnpacked( level.myOrder );
-                allPacked = true;
-            }
-        }
-
-        } while( ! allPacked );
+        while( ! allPacked );
     }
     if( allPacked )
     {
@@ -242,5 +257,82 @@ bool CS2LNW(
         L -= t->myLength;
     }
     return allPacked;
+}
+
+bool CS2Pack2(
+    cInstance& I,
+    cLevel& level, int h )
+{
+    // load level into pack2 engine
+    pack2::cPackEngine E;
+
+    E.add( pack2::bin_t( new pack2::cBin( "stock",
+                                          level.myStock->myLength,
+                                          level.myStock->myWidth )) );
+    int k = 0;
+    for( timber_t& t : level.myOrder )
+    {
+        E.addItem(
+            std::to_string( k++ )+"_"+t->myUserID,
+            t->myLength, t->myWidth );
+    }
+
+    // run the Pack2 engine
+    Pack( E );
+
+    std::cout << "Pack2 cutlist\n";
+    for( auto& c : pack2::CutList( E ) )
+    {
+        for( int v : c )
+            std::cout << v << ", ";
+        std::cout << "\n";
+    }
+
+    std::cout << "\nPack2 csv\n";
+    std::cout << pack2::CSV( E );
+
+    int unpackedCount = 0;
+    for( pack2::item_t item : E.items() )
+    {
+        if( ! item->isPacked() )
+        {
+            unpackedCount++;
+            continue;
+        }
+        // order was cut
+        level.myOrder[ atoi( item->userID().c_str() ) ]->pack( item->locX(), item->locY(), h, level.myStock  );
+    }
+
+    // check for nothing packed
+    if( unpackedCount == (int)level.myOrder.size() )
+    {
+        std::cout << "nothing fit\n";
+        return false;
+    }
+
+    auto binList = RawCutList( E )[0];
+    for( auto& c : binList )
+    {
+        // add to cutting list
+        char LW;
+        if( c.myIsVertical )
+        {
+            LW = 'L';
+        }
+        else
+        {
+            LW = 'W';
+        }
+
+        cCut cut(
+            level.myStock,
+            LW,
+            c.myIntercept,
+            h );
+        //std::cout << cut.text() << "\n\n";
+        I.myCut.push_back( cut );
+    }
+
+    return ( unpackedCount == 0 );
 }
 }
