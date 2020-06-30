@@ -250,12 +250,24 @@ bool CS2Pack2(
     cInstance& I,
     cLevel& level, int h );
 
+/** Record a cut for an order in the instance
+    @param[in] I the instance
+    @param[in] stock order is cut from
+    @param[in] order being cut
+    @param[[in] length position
+    @param[[in] width position
+    @param[[in] height position
+*/
 void CutOrder(
     cInstance& I,
     timber_t& stock,
     timber_t& order,
     int length, int width, int height );
 
+/** Record the V cut for a level in the instance
+    @param[in] I the instance
+    @param[in] level
+*/
 void CutLevel(
     cInstance& I,
     cLevel& level );

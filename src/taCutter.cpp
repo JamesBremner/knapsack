@@ -310,26 +310,37 @@ bool CS2Pack2(
         return false;
     }
 
-    auto binList = RawCutList( E )[0];
-    for( auto& c : binList )
+    // output the cuts
+
+    /* Loop over cuts in level
+
+        The pack2 engine returns a vector of vectors, one for each bin
+        There is only one bin, the level,
+        so we need only look at the first vector of cuts
+    */
+    for( auto& c : CutList( E )[0] )
     {
-        // add to cutting list
+
         char LW;
         if( c.myIsVertical )
         {
+            // vertical cuts in pack2 ( which is 2d ) are orthogonasl to the length dimension in 3D
             LW = 'L';
         }
         else
         {
+            // horizontal cuts in pack2 ( which is 2d ) are orthogonasl to the width dimension in 3D
             LW = 'W';
         }
-
+        // construct a 3D cut
         cCut cut(
             level.myStock,
             LW,
             c.myIntercept,
             h );
         //std::cout << cut.text() << "\n\n";
+
+        // add it to the instance cut list
         I.myCut.push_back( cut );
     }
 
