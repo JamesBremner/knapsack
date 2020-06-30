@@ -33,6 +33,16 @@ std::string cInventory::text()
     return ss.str();
 }
 
+std::string cInventory::textDetails()
+{
+    std::stringstream ss;
+    for( timber_t t : myStock )
+    {
+        ss << "i " << t->myLength <<" "<< t->myWidth <<" "<< t->myHeight
+        << " 1 " << t->myUserID << "\n";
+    }
+    return ss.str();
+}
 void cInventory::sortInventory( int sheetHeight, int scrapWidth )
 {
     // rotate, if neccesary, so L > W > H

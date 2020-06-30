@@ -171,9 +171,6 @@ void LevelCuts(
                 // remove timbers from level that have been packed
                 level.removePacked();
 
-                // flag the stock has been used
-                level.myStock->setUsed();
-
                 // TODO: return unused remainders to inventory
 
                 if( ! allPacked )
@@ -369,20 +366,52 @@ void AllocateOrder(
 {
     order->pack( length, width, height, stock );
     I.myAllocation.push_back( std::make_pair( order, stock ));
+    stock->used();
 }
 void CutLevel(
     cInstance& I,
     cLevel& level )
 {
-    if( level.height() == level.myStock->myHeight )
+    timber_t stock = level.myStock;
+
+    stock->level( level.height() );
+
+    if( level.height() == stock->myHeight )
     {
         //no need for a cut, we are at the top of the stock
         return;
     }
     I.myCut.push_back( cCut(
-                           level.myStock,
+                           stock,
                            'H',
                            level.height(),
                            level.height() ));
+}
+
+void ReturnToInventory(
+    cInventory& I )
+{
+    // remove stock timbers whose complete height has been used
+    I.myStock.erase(
+        remove_if(
+            I.myStock.begin(),
+            I.myStock.end(),
+            [] ( timber_t t )
+    {
+        std::cout << "remove? " <<t->isUsed() <<" " <<t->level() <<" "<<t->myHeight << "\n";
+        return( t->isUsed()  && t->level() == t->myHeight );
+    } ),
+    I.myStock.end() );
+
+    // adjust height of partially used stock
+    for( timber_t t : I.myStock )
+    {
+        if( ! t->isUsed() )
+            continue;
+
+        t->myHeight -= t->level();
+        t->level( 0 );
+        t->used( false );
+    }
 }
 }

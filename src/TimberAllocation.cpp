@@ -38,8 +38,13 @@ int main( int argc, char* argv[] )
         // cut out orders from stock by level
         LevelCuts( I, levels, theInventory );
 
+        ReturnToInventory( theInventory );
+
         // display solution
         std::cout << I.textSolution();
+
+        // display depleted inventory
+        std::cout << theInventory.textDetails();
     }
     catch( std::runtime_error& e )
     {

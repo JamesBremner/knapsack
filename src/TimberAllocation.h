@@ -72,7 +72,7 @@ public:
         return myPacked;
     }
 
-    void setUsed()
+    void used( bool f = true )
     {
         myUsed = true;
     }
@@ -81,13 +81,24 @@ public:
         return myUsed;
     }
 
+    // set the location of the top of the highest level cut
+    void level( int h )
+    {
+        myLevel = h;
+    }
+    int level() const
+    {
+        return myLevel;
+    }
+
     std::string myUserID;
     int myCount;
 
 private:
-    bool myPacked;
-    bool myUsed;
-    timber_t myStock;
+    bool myPacked;      // true if an order that has been allocated
+    timber_t myStock;   // if an allocated order, the stock allocated to
+    bool myUsed;        // true if a stock that haveen used to cut orders
+    int myLevel;         // the location of the top of the highest level cut
 };
 
 class cInventory
@@ -97,6 +108,7 @@ public:
     void add( timber_t t );
     void expandCount();
     std::string text();
+    std::string textDetails();
 
     /** Sort inventory into stock, sheets and scraps
     @param[in] sheetHeight maximum sheet height
@@ -246,6 +258,7 @@ bool CS2LNW(
     cInstance& I,
     cLevel& level, int h );
 
+/// Use pack2 engine to do 2D level cutting
 bool CS2Pack2(
     cInstance& I,
     cLevel& level, int h );
@@ -271,5 +284,8 @@ void AllocateOrder(
 void CutLevel(
     cInstance& I,
     cLevel& level );
-}
 
+void ReturnToInventory(
+    cInventory& I );
+
+}
