@@ -45,6 +45,8 @@ int main( int argc, char* argv[] )
 
         // display depleted inventory
         std::cout << theInventory.textDetails();
+
+        DisplayWastage( levels );
     }
     catch( std::runtime_error& e )
     {

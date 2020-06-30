@@ -283,9 +283,7 @@ bool CS2Pack2(
     for( pack2::item_t item : E.items() )
     {
         if( ! item->isPacked() )
-        {
             continue;
-        }
 
         packedCount++;
         if( packedCount == 1 )
@@ -302,8 +300,8 @@ bool CS2Pack2(
 
         AllocateOrder(
             I,
-            level.myStock,
-            level.myOrder[ atoi( item->userID().c_str() ) ],
+            level,
+            atoi( item->userID().c_str() ),
             item->locX(), item->locY(), h );
     }
 
@@ -360,13 +358,21 @@ bool CS2Pack2(
 
 void AllocateOrder(
     cInstance& I,
-    timber_t& stock,
-    timber_t& order,
+    cLevel& level,
+    int order,
     int length, int width, int height )
 {
-    order->pack( length, width, height, stock );
-    I.myAllocation.push_back( std::make_pair( order, stock ));
-    stock->used();
+    // allocate order to stock
+    level.myOrder[ order ]->pack( length, width, height, level.myStock );
+
+    // record allocation
+    I.myAllocation.push_back( std::make_pair( level.myOrder[ order ], level.myStock ));
+
+    // mark stock as used
+    level.myStock->used();
+
+    // record how much of level used
+    level.use( level.myOrder[ order ] );
 }
 void CutLevel(
     cInstance& I,
@@ -413,5 +419,12 @@ void ReturnToInventory(
         t->level( 0 );
         t->used( false );
     }
+}
+void DisplayWastage( std::vector<cLevel>& levels )
+{
+    int wastage = 0;
+    for( auto l : levels )
+        wastage += l.wastage();
+    std::cout << "w " << wastage << "\n";
 }
 }

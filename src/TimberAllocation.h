@@ -151,6 +151,13 @@ class cLevel
 public:
     timberv_t myOrder;      // orders
     timber_t  myStock;      // stock allocated to level
+    int myAreaUsed;
+
+    cLevel()
+    : myAreaUsed( 0 )
+    {
+
+    }
     void removePacked();    // remove orders that have been packed
     std::string text() const;
     int height() const
@@ -160,6 +167,14 @@ public:
     int size() const
     {
         return (int) myOrder.size();
+    }
+    void use( timber_t order )
+    {
+        myAreaUsed += order->myLength * order->myWidth;
+    }
+    int wastage() const
+    {
+        return height() * ( myStock->myLength * myStock->myWidth - myAreaUsed );
     }
 };
 
@@ -265,16 +280,16 @@ bool CS2Pack2(
 
 /** Allocate an order
     @param[in] I the instance
-    @param[in] stock order is allocated to
-    @param[in] order being allocated
+    @param[in] level
+    @param[in] order index in level
     @param[[in] length position
     @param[[in] width position
     @param[[in] height position
 */
 void AllocateOrder(
     cInstance& I,
-    timber_t& stock,
-    timber_t& order,
+    cLevel& level,
+    int order,
     int length, int width, int height );
 
 /** Record the V cut for a level in the instance
@@ -287,5 +302,7 @@ void CutLevel(
 
 void ReturnToInventory(
     cInventory& I );
+
+void DisplayWastage( std::vector<cLevel>& levels );
 
 }
