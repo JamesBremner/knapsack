@@ -281,6 +281,7 @@ bool CS2Pack2(
 //    std::cout << pack2::CSV( E );
 
 
+    // loop over items in level, allocating orders that fit
     int packedCount = 0;
     for( pack2::item_t item : E.items() )
     {
@@ -297,18 +298,16 @@ bool CS2Pack2(
                 so record the level cut in the instance
                 unless at top of stock
             */
-            if( level.height() != level.myStock->myHeight )
-                CutLevel(
-                    I,
-                    level );
+            CutLevel(
+                I,
+                level );
         }
 
-        CutOrder(
+        AllocateOrder(
             I,
             level.myStock,
             level.myOrder[ atoi( item->userID().c_str() ) ],
             item->locX(), item->locY(), h );
-
     }
 
     // check for nothing packed
@@ -362,7 +361,7 @@ bool CS2Pack2(
     return ( packedCount == level.size() );
 }
 
-void CutOrder(
+void AllocateOrder(
     cInstance& I,
     timber_t& stock,
     timber_t& order,
@@ -375,6 +374,11 @@ void CutLevel(
     cInstance& I,
     cLevel& level )
 {
+    if( level.height() == level.myStock->myHeight )
+    {
+        //no need for a cut, we are at the top of the stock
+        return;
+    }
     I.myCut.push_back( cCut(
                            level.myStock,
                            'H',
