@@ -270,7 +270,7 @@ bool CS2Pack2(
     Pack( E );
 
 //    std::cout << "Pack2 cutlist\n";
-//    for( auto& c : pack2::CutList( E ) )
+//    for( auto& c : pack2::CutListEndPoints( E ) )
 //    {
 //        for( int v : c )
 //            std::cout << v << ", ";
@@ -280,37 +280,46 @@ bool CS2Pack2(
 //    std::cout << "\nPack2 csv\n";
 //    std::cout << pack2::CSV( E );
 
-    int unpackedCount = 0;
+
+    int packedCount = 0;
     for( pack2::item_t item : E.items() )
     {
         if( ! item->isPacked() )
         {
-            unpackedCount++;
-            if( unpackedCount == 1 )
-            {
+            continue;
+        }
+
+        packedCount++;
+        if( packedCount == 1 )
+        {
+            /* We are going to cut at least one order for this level from this stock
+                first we need to cut the level from the stock.
+                so record the level cut in the instance
+                unless at top of stock
+            */
+            if( level.height() != level.myStock->myHeight )
                 CutLevel(
                     I,
                     level );
-            }
-            continue;
         }
-        // order  cut
 
         CutOrder(
             I,
             level.myStock,
             level.myOrder[ atoi( item->userID().c_str() ) ],
             item->locX(), item->locY(), h );
+
     }
 
     // check for nothing packed
-    if( unpackedCount == (int)level.myOrder.size() )
+    if( ! packedCount )
     {
         std::cout << "nothing fit\n";
         return false;
     }
 
-    // output the cuts
+    // at least one order was cut for this stock
+    // store cuts in the instance
 
     /* Loop over cuts in level
 
@@ -318,18 +327,23 @@ bool CS2Pack2(
         There is only one bin, the level,
         so we need only look at the first vector of cuts
     */
-    for( auto& c : CutList( E )[0] )
+    auto cl = CutList( E )[0];
+    for( auto& c : cl )
     {
-
+        // check if cut is at stock boundary
         char LW;
         if( c.myIsVertical )
         {
             // vertical cuts in pack2 ( which is 2d ) are orthogonasl to the length dimension in 3D
+            if( c.myIntercept == 0 || c.myIntercept == level.myStock->myLength )
+                continue;   // unneccesary cut at stock edge
             LW = 'L';
         }
         else
         {
             // horizontal cuts in pack2 ( which is 2d ) are orthogonasl to the width dimension in 3D
+            if( c.myIntercept == 0 || c.myIntercept == level.myStock->myWidth )
+                continue;   // unneccesary cut at stock edge
             LW = 'W';
         }
         // construct a 3D cut
@@ -338,13 +352,14 @@ bool CS2Pack2(
             LW,
             c.myIntercept,
             h );
+
         //std::cout << cut.text() << "\n\n";
 
         // add it to the instance cut list
         I.myCut.push_back( cut );
     }
 
-    return ( unpackedCount == 0 );
+    return ( packedCount == level.size() );
 }
 
 void CutOrder(
