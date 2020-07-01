@@ -51,6 +51,8 @@ public:
     }
     cTimber( int L, int W, int H )
         : cSpace( L, W, H )
+        , myPacked( false )
+        , myUsed( false )
     {
 
     }
@@ -154,7 +156,7 @@ public:
     int myAreaUsed;
 
     cLevel()
-    : myAreaUsed( 0 )
+        : myAreaUsed( 0 )
     {
 
     }
@@ -193,14 +195,21 @@ public:
     */
     static void expandCount( timberv_t& tv );
 
+    void addOrder( timber_t t );
     void addUnpacked( timberv_t& unpacked );
 
+    /** Expand multiple timbers
+    @param[in] tv vector of timbers
+    */
+    void expandCount();
 
     timberv_t myOrder;          /// the timbers that have to be delivered
 
     std::vector<std::pair<timber_t,timber_t>> myAllocation;
 
     std::vector< cCut > myCut;
+
+
 
 private:
 
@@ -210,10 +219,7 @@ private:
     std::vector< int > ParseSpaceDelimited(
         const std::string& l );
 
-    /** Expand multiple timbers
-        @param[in] tv vector of timbers
-    */
-    void expandCount();
+
 };
 /** allocate tombers of same height to levels
 @param[in] I the problem instance

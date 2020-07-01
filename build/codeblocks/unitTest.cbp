@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="taUnitTest" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc_v83" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../bin/UnitTest" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc_v83" />
+				<Option parameters="../data/timber-alloc-data.txt" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../../bin/UnitTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc_v83" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="../../../pack2/src" />
+			<Add directory="$(#ravenset)" />
+		</Compiler>
+		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
+			<Add option="-static" />
+		</Linker>
+		<Unit filename="../../../pack2/src/cCut.cpp" />
+		<Unit filename="../../../pack2/src/cShape.cpp" />
+		<Unit filename="../../../pack2/src/pack2.cpp" />
+		<Unit filename="../../../raven-set/cutest.cpp" />
+		<Unit filename="../../src/TimberAllocation.h" />
+		<Unit filename="../../src/taCutter.cpp" />
+		<Unit filename="../../src/taInstance.cpp" />
+		<Unit filename="../../src/taInventory.cpp" />
+		<Unit filename="../../src/taLevel.cpp" />
+		<Unit filename="../../src/taSpace.cpp" />
+		<Unit filename="../../src/taTimber.cpp" />
+		<Unit filename="../../src/taUnitTest.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

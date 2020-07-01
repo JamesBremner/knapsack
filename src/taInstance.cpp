@@ -85,7 +85,10 @@ std::string cInstance::textSolution()
     }
     return ss.str();
 }
-
+void cInstance::addOrder( timber_t t )
+{
+    myOrder.push_back( t );
+}
 void cInstance::addUnpacked( timberv_t& unpacked )
 {
     myUnpacked.insert(
