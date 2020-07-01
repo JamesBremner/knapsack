@@ -37,6 +37,7 @@
 				<Option projectLinkerOptionsRelation="1" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="../../../pack2/src" />
 				</Compiler>
 			</Target>
 		</Build>
