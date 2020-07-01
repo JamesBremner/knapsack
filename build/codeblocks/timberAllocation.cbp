@@ -12,7 +12,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc_v83" />
-				<Option parameters="../data/timber-alloc-data.txt" />
+				<Option parameters="../data/t3.txt" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -28,6 +28,16 @@
 				<Linker>
 					<Add option="-s" />
 				</Linker>
+			</Target>
+			<Target title="Linux">
+				<Option output="../../bin/timberAllocation" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc_v83" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
