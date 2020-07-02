@@ -21,32 +21,25 @@ int main( int argc, char* argv[] )
     try
     {
         ta::cInstance I;
-        ta::cInventory theInventory;
 
         // read problem instance file
-        I.read( theInventory, argv[1] );
-
-        // sort inventory into stock, sheets and scraps
-        theInventory.sortInventory( 100, 100 );
+        I.read( argv[1] );
 
         // sort orders into levels of the same height
-        auto levels = Levels( I );
+        Levels( I );
 
         // allocate levels to stock
-        LevelsToStock( I, levels, theInventory );
+        LevelsToStock( I );
 
         // cut out orders from stock by level
-        LevelCuts( I, levels, theInventory );
+        LevelCuts( I );
 
-        ReturnToInventory( theInventory );
+        ReturnToInventory( I );
 
         // display solution
         std::cout << I.textSolution();
 
-        // display depleted inventory
-        std::cout << theInventory.textDetails();
-
-        DisplayWastage( levels );
+        DisplayWastage( I );
     }
     catch( std::runtime_error& e )
     {

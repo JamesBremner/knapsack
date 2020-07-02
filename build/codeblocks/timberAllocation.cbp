@@ -59,7 +59,6 @@
 		<Unit filename="../../src/TimberAllocation.h" />
 		<Unit filename="../../src/taCutter.cpp" />
 		<Unit filename="../../src/taInstance.cpp" />
-		<Unit filename="../../src/taInventory.cpp" />
 		<Unit filename="../../src/taLevel.cpp" />
 		<Unit filename="../../src/taSpace.cpp" />
 		<Unit filename="../../src/taTimber.cpp" />

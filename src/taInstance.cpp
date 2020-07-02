@@ -13,14 +13,12 @@ namespace ta
 {
 
 void cInstance::read(
-    cInventory& Inventory,
     const std::string& fname )
 {
     std::ifstream f( fname );
     if( ! f.is_open() )
         throw std::runtime_error("Cannot read instance file " + fname );
 
-    Inventory.clear();
     myOrder.clear();
 
     // loop over lines in file
@@ -32,7 +30,7 @@ void cInstance::read(
         switch ( T->ParseSpaceDelimited( line ) )
         {
         case 0:     // inventory
-            Inventory.add( T );
+            myStock.push_back( T );
             break;
         case 1:     // demand
             myOrder.push_back( T );
@@ -40,13 +38,13 @@ void cInstance::read(
         }
     }
     isEveryIDUnique();
-    Inventory.expandCount();
     expandCount();
 }
 
 void cInstance::expandCount()
 {
     expandCount( myOrder );
+    expandCount( myStock );
 }
 void cInstance::expandCount( timberv_t& tv )
 {
@@ -85,7 +83,16 @@ std::string cInstance::textSolution()
     {
         ss << "u " << u->myUserID << "\n";
     }
+    for(  auto& t : myStock )
+    {
+        ss << "i " << t->myLength <<" "<< t->myWidth <<" "<< t->myHeight
+           << " 1 " << t->myUserID << "\n";
+    }
     return ss.str();
+}
+void cInstance::addStock( timber_t t )
+{
+    myStock.push_back( t );
 }
 void cInstance::addOrder( timber_t t )
 {
@@ -141,8 +148,13 @@ void cInstance::rotateLWH()
     {
         t->rotateLWH();
     }
+    for( auto t : myStock )
+    {
+        t->rotateLWH();
+    }
 }
-void cInstance::sortByHeight() {
+void cInstance::sortByHeight()
+{
     std::sort( myOrder.begin(), myOrder.end(),
                []( timber_t a, timber_t b)
     {

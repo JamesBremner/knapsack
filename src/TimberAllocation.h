@@ -44,6 +44,7 @@ class cTimber : public cSpace
 public:
     cTimber()
         : cSpace( 0, 0, 0 )
+        , myCount( 1 )
         , myPacked( false )
         , myUsed( false )
     {
@@ -51,8 +52,10 @@ public:
     }
     cTimber( int L, int W, int H )
         : cSpace( L, W, H )
+        , myCount( 1 )
         , myPacked( false )
         , myUsed( false )
+
     {
 
     }
@@ -113,32 +116,32 @@ private:
     bool myUsedbyLevel;  // true if stock has been allocated to current level
 };
 
-class cInventory
-{
-public:
-    void clear();
-    void add( timber_t t );
-    void expandCount();
-    std::string text();
-    std::string textDetails();
-
-    /** Sort inventory into stock, sheets and scraps
-    @param[in] sheetHeight maximum sheet height
-    @param[in] scrapWidth maximum scrap width
-
-    This will allow inentory returns, if present,
-    to be optimised.
-
-    tid7
-    */
-    void sortInventory( int sheetHeight, int scrapWidth );
-
-public:
-    timberv_t myInventory;      /// inentory ( all timbers labeled 'i' in the instance file )
-    timberv_t myScrap;          /// inventory fpr 1D cutting
-    timberv_t mySheet;          /// inventory for 2D cutting
-    timberv_t myStock;          /// invemtory for 3D cutting
-};
+//class cInventory
+//{
+//public:
+//    void clear();
+//    //void add( timber_t t );
+//    //void expandCount();
+//    //std::string text();
+//    //std::string textDetails();
+//
+//    /** Sort inventory into stock, sheets and scraps
+//    @param[in] sheetHeight maximum sheet height
+//    @param[in] scrapWidth maximum scrap width
+//
+//    This will allow inentory returns, if present,
+//    to be optimised.
+//
+//    tid7
+//    */
+//    //void sortInventory( int sheetHeight, int scrapWidth );
+//
+//public:
+//    timberv_t myInventory;      /// inentory ( all timbers labeled 'i' in the instance file )
+////    timberv_t myScrap;          /// inventory fpr 1D cutting
+////    timberv_t mySheet;          /// inventory for 2D cutting
+//    timberv_t myStock;          /// invemtory for 3D cutting
+//};
 class cCut
 {
 public:
@@ -204,7 +207,6 @@ class cInstance
 {
 public:
     void read(
-        cInventory& Inventory,
         const std::string& fname );
 
     std::string textProblem();
@@ -215,6 +217,8 @@ public:
     */
     static void expandCount( timberv_t& tv );
 
+
+    void addStock( timber_t t );
     void addOrder( timber_t t );
     void addUnpacked( timberv_t& unpacked );
 
@@ -267,40 +271,47 @@ public:
         return myOrder;
     }
 
+    std::vector< cLevel >& levels()
+    {
+        return myLevels;
+    }
+
+    timberv_t& stock()
+    {
+        return myStock;
+    }
+
 private:
 
-    timberv_t myOrder;          /// the timbers that have to be delivered
+    timberv_t       myStock;
 
-    timberv_t           myUnpacked; /// orders that could not be met from the inventory
+    timberv_t       myOrder;            /// the timbers that have to be delivered
+
+    std::vector< cLevel > myLevels;
+
+    timberv_t       myUnpacked;         /// orders that could not be met from the inventory
 
     std::vector<std::pair<timber_t,timber_t>>
                                            myAllocation;         /// stock that order was cut from
 
-    std::vector< cCut > myCut;
+    std::vector< cCut > myCut;          /// cuts required
 
     /// Parse a line in the instance file
     std::vector< int > ParseSpaceDelimited(
         const std::string& l );
 
-
 };
 /** allocate timbers of same height to levels
 @param[in] I the problem instance
-@return vector of levels, each containing timbers of the same height
 */
-std::vector< cLevel >
-Levels( cInstance& I );
+void Levels( cInstance& I );
 
 /** allocate levels to stock
     @param[out] I the instance
-    @param[in] levels
-    @param[in] stock inventory
 */
 void
 LevelsToStock(
-    cInstance& I,
-    std::vector< cLevel >& levels,
-    cInventory& inventory );
+    cInstance& I );
 
 /** allocate a level to a stock
     @param[out] I the instance
@@ -316,12 +327,9 @@ LevelToStock(
 
 /** cut out the orders
     @param[out] I the instance
-    @param[in] levels
 */
 void LevelCuts(
-    cInstance& I,
-    std::vector< cLevel >& levels,
-    cInventory& inventory );
+    cInstance& I );
 
 /** Cutting stock 2 dimensional no width
     @param[out] I the instance
@@ -372,8 +380,9 @@ void CutLevel(
     int h );
 
 void ReturnToInventory(
-    cInventory& I );
+    cInstance& I );
 
-void DisplayWastage( std::vector<cLevel>& levels );
+void DisplayWastage(
+    cInstance& I );
 
 }

@@ -19,15 +19,13 @@ std::string cCut::text()
     return ss.str();
 }
 
-std::vector< cLevel >
-Levels( cInstance& I )
+void Levels( cInstance& I )
 {
     I.rotateLWH();
 
     I.sortByHeight();
 
     // allocate items of same height to a level
-    std::vector< cLevel > levels;
     int h_level = -1;
     for( timber_t t : I.orders() )
     {
@@ -36,29 +34,25 @@ Levels( cInstance& I )
             // create a new level
             h_level = t->myHeight;
             cLevel level;
-            levels.push_back( level );
+            I.levels().push_back( level );
         }
 
         // add to current level
-        levels.back().myOrder.push_back( t );
+        I.levels().back().myOrder.push_back( t );
     }
 
-    for( cLevel& l : levels )
+    for( cLevel& l : I.levels() )
         std::cout << l.text() <<"\n";
-
-    return levels;
 }
 
 void LevelsToStock(
-    cInstance& I,
-    std::vector< cLevel >& levels,
-    cInventory& inventory )
+    cInstance& I )
 {
-    for( timber_t t : inventory.myStock )
+    for( timber_t t : I.stock() )
         t->usedbyLevel( false );
-    for ( auto& level : levels )
+    for ( auto& level : I.levels() )
     {
-        LevelToStock( I, level, inventory.myStock );
+        LevelToStock( I, level, I.stock() );
     }
 }
 
@@ -122,18 +116,16 @@ LevelToStock(
 }
 
 void LevelCuts(
-    cInstance& I,
-    std::vector< cLevel >& levels,
-    cInventory& inventory )
+    cInstance& I )
 {
     bool allPacked;
 
     // loop over levels
-    for( cLevel& level : levels )
+    for( cLevel& level : I.levels() )
     {
         std::cout << "cutting level " << level.text() << "\n";
 
-        for( timber_t t : inventory.myStock )
+        for( timber_t t : I.stock() )
             t->usedbyLevel( false );
 
         do
@@ -189,7 +181,7 @@ void LevelCuts(
             if( ! allPacked )
             {
                 // stock timber exhausted, need to allocate another
-                if( ! LevelToStock( I, level, inventory.myStock ) )
+                if( ! LevelToStock( I, level, I.stock() ) )
                 {
                     // no suitable stock available
                     std::cout << " no suitable stock available\n";
@@ -404,26 +396,26 @@ void CutLevel(
 }
 
 void ReturnToInventory(
-    cInventory& I )
+    cInstance& I )
 {
     // remove stock timbers whose complete height has been used
-    I.myStock.erase(
+    I.stock().erase(
         remove_if(
-            I.myStock.begin(),
-            I.myStock.end(),
+            I.stock().begin(),
+            I.stock().end(),
             [] ( timber_t t )
     {
         t->level( 0 );
         t->used( false );
         return( ! t->myHeight );
     } ),
-    I.myStock.end() );
+    I.stock().end() );
 
 }
-void DisplayWastage( std::vector<cLevel>& levels )
+void DisplayWastage( cInstance& I )
 {
     int wastage = 0;
-    for( auto l : levels )
+    for( auto l : I.levels() )
         wastage += l.wastage();
     std::cout << "w " << wastage << "\n";
 }

@@ -11,29 +11,23 @@ TEST( tid9 )
 //d 500 300 200 4 o1
 
     ta::cInstance I;
-    ta::cInventory theInventory;
     ta::timber_t T( new ta::cTimber(1000, 600, 200 ) );
     T->myUserID = "i1";
-    theInventory.add( T );
+    I.addStock( T );
     ta::timber_t O( new ta::cTimber(500, 300, 200 ) );
     O->myUserID = "o1";
     O->myCount = 4;
     I.addOrder( O );
     I.expandCount();
 
-
-    // sort inventory into stock, sheets and scraps
-    theInventory.sortInventory( 100, 100 );
-    std::cout << theInventory.textDetails();
-
     // sort orders into levels of the same height
-    auto levels = Levels( I );
+    Levels( I );
 
     // allocate levels to stock
-    LevelsToStock( I, levels, theInventory );
+    LevelsToStock( I );
 
     // cut out orders from stock by level
-    LevelCuts( I, levels, theInventory );
+    LevelCuts( I );
 
     // check cut count and positions
     CHECK_EQUAL( 2, I.cutListSize() );
@@ -48,10 +42,9 @@ TEST( twoLevels )
 //d 500 300 200 8 o1
 
     ta::cInstance I;
-    ta::cInventory theInventory;
     ta::timber_t T( new ta::cTimber(1000, 600, 400 ) );
     T->myUserID = "i1";
-    theInventory.add( T );
+    I.addStock( T );;
     ta::timber_t O( new ta::cTimber(500, 300, 200 ) );
     O->myUserID = "o1";
     O->myCount = 8;
@@ -59,17 +52,14 @@ TEST( twoLevels )
     I.expandCount();
 
 
-    // sort inventory into stock, sheets and scraps
-    theInventory.sortInventory( 100, 100 );
-
     // sort orders into levels of the same height
-    auto levels = Levels( I );
+    Levels( I );
 
     // allocate levels to stock
-    LevelsToStock( I, levels, theInventory );
+    LevelsToStock( I );
 
     // cut out orders from stock by level
-    LevelCuts( I, levels, theInventory );
+    LevelCuts( I );
 
     //std::cout << I.textSolution();
 
@@ -89,28 +79,22 @@ TEST( shortStock )
 //d 500 300 200 12 o1
 
     ta::cInstance I;
-    ta::cInventory theInventory;
     ta::timber_t T( new ta::cTimber(1000, 600, 400 ) );
     T->myUserID = "i1";
-    theInventory.add( T );
+        I.addStock( T );
     ta::timber_t O( new ta::cTimber(500, 300, 200 ) );
     O->myUserID = "o1";
     O->myCount = 12;
     I.addOrder( O );
     I.expandCount();
 
-
-    // sort inventory into stock, sheets and scraps
-    theInventory.sortInventory( 100, 100 );
-
-    // sort orders into levels of the same height
-    auto levels = Levels( I );
+    Levels( I );
 
     // allocate levels to stock
-    LevelsToStock( I, levels, theInventory );
+    LevelsToStock( I );
 
     // cut out orders from stock by level
-    LevelCuts( I, levels, theInventory );
+    LevelCuts( I );
 
     //std::cout << I.textSolution();
 
@@ -130,31 +114,25 @@ TEST( twoStock )
 //d 500 300 200 12 o1
 
     ta::cInstance I;
-    ta::cInventory theInventory;
     ta::timber_t T( new ta::cTimber(1000, 600, 400 ) );
     T->myUserID = "i1";
     T->myCount = 2;
-    theInventory.add( T );
+        I.addStock( T );
     ta::timber_t O( new ta::cTimber(500, 300, 200 ) );
     O->myUserID = "o1";
     O->myCount = 12;
     I.addOrder( O );
 
     I.expandCount();
-    theInventory.expandCount();
-
-
-    // sort inventory into stock, sheets and scraps
-    theInventory.sortInventory( 100, 100 );
 
     // sort orders into levels of the same height
-    auto levels = Levels( I );
+    Levels( I );
 
     // allocate levels to stock
-    LevelsToStock( I, levels, theInventory );
+    LevelsToStock( I );
 
     // cut out orders from stock by level
-    LevelCuts( I, levels, theInventory );
+    LevelCuts( I );
 
     //std::cout << I.textSolution();
 
