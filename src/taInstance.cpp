@@ -130,5 +130,9 @@ bool cInstance::isEveryIDUnique()
     std::cout <<  "\n" << myOrder.size() << " unique order IDs\n";
     return true;
 }
+void cInstance::allocate( timber_t order, timber_t stock )
+{
+    myAllocation.push_back( std::make_pair( order, stock ));
+}
 }
 

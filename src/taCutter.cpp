@@ -79,6 +79,8 @@ LevelToStock(
     cLevel& level,
     timberv_t& stock )
 {
+    std::cout << "LevelToStock " << stock.size() << "\n";
+
     if( ! stock.size() )
         throw std::runtime_error("No stock");
 
@@ -386,7 +388,7 @@ void AllocateOrder(
     level.myOrder[ order ]->pack( length, width, height, level.myStock );
 
     // record allocation
-    I.myAllocation.push_back( std::make_pair( level.myOrder[ order ], level.myStock ));
+    I.allocate( level.myOrder[ order ], level.myStock  );
 
     // mark stock as used
     level.myStock->used();

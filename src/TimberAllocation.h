@@ -231,17 +231,22 @@ public:
 
     bool isEveryIDUnique();
 
+    /** Record allocation in solution
+        @param[in] order
+        @param[in] stock
+    */
+    void allocate( timber_t order, timber_t stock );
+
     timberv_t myOrder;          /// the timbers that have to be delivered
 
-    std::vector<std::pair<timber_t,timber_t>> myAllocation;
 
     std::vector< cCut > myCut;
 
-
-
 private:
 
-    timberv_t myUnpacked;
+    timberv_t           myUnpacked;
+    std::vector<std::pair<timber_t,timber_t>>
+                          myAllocation;
 
     /// Parse a line in the instance file
     std::vector< int > ParseSpaceDelimited(
@@ -249,7 +254,7 @@ private:
 
 
 };
-/** allocate tombers of same height to levels
+/** allocate timbers of same height to levels
 @param[in] I the problem instance
 @return vector of levels, each containing timbers of the same height
 */
