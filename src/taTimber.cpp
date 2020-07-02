@@ -49,6 +49,7 @@ void cTimber::pack( int l, int w, int h, timber_t stock )
     myLocW = w;
     myLocH = h;
     myStock = stock;
+    stock->used();
 }
 
 

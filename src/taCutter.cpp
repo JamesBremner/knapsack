@@ -65,6 +65,8 @@ void LevelsToStock(
     std::vector< cLevel >& levels,
     cInventory& inventory )
 {
+    for( timber_t t : inventory.myStock )
+        t->usedbyLevel( false );
     for ( auto& level : levels )
     {
         LevelToStock( I, level, inventory.myStock );
@@ -87,7 +89,11 @@ LevelToStock(
     bool found = false;
     for( timber_t t : stock )
     {
-        if( t->isUsed() )
+        // check if this stock was previously allocated to this level
+        // if so, it means that the level could not be packed into the stock
+        // probably because the W and/or length were too short
+        // in any case we do not want to allocate the stock again
+        if( t->isUsedbyLevel() )
             continue;
 
         int stockHeight = t->myHeight;
@@ -132,10 +138,14 @@ void LevelCuts(
     cInventory& inventory )
 {
     bool allPacked;
+
     // loop over levels
     for( cLevel& level : levels )
     {
         std::cout << "cutting level " << level.text() << "\n";
+
+        for( timber_t t : inventory.myStock )
+            t->usedbyLevel( false );
 
         do
         {
@@ -151,16 +161,20 @@ void LevelCuts(
                 h < level.myStock->myHeight;    // does stock have enough height to stack another level?
                 h += level.height() )           // up one level
             {
+
                 // Use 2D cutting algorithm to cut orders from level.
 
 #ifdef USE_CS2LNW
                 allPacked = CS2LNW( I, level, h );
 #endif // USE_CS2LNW
 #ifdef USE_CS2Pack2
-                allPacked = CS2Pack2( I, level, h );
+                CS2Pack2( I, level, h );
 #endif // CS2Pack2
 
-                if(  allPacked )
+                // remove packed timbers from level
+                int ret = level.removePacked();
+
+                if(  ret == 2 )
                 {
                     // all timbers in this level are packed
                     std::cout << "all timbers in this level are packed\n";
@@ -168,24 +182,33 @@ void LevelCuts(
                     break;
                 }
 
-                // remove timbers from level that have been packed
-                level.removePacked();
-
-                // TODO: return unused remainders to inventory
-
-                if( ! allPacked )
+                if( ret == 1 )
                 {
-                    // stock timber exhausted, need to allocate another
-                    if( ! LevelToStock( I, level, inventory.myStock ) )
-                    {
-                        // no suitable stock available
-                        std::cout << " no suitable stock available\n";
-                        I.addUnpacked( level.myOrder );
-                        allPacked = true;
-                    }
+                    // some packed
+                    continue;
                 }
 
+                if( ret == 0 )
+                {
+                    // nothing packed
+                    level.myStock->usedbyLevel( true );
+                    break;
+                }
+
+            }  // loop back to cut another level from the stock
+
+            if( ! allPacked )
+            {
+                // stock timber exhausted, need to allocate another
+                if( ! LevelToStock( I, level, inventory.myStock ) )
+                {
+                    // no suitable stock available
+                    std::cout << " no suitable stock available\n";
+                    I.addUnpacked( level.myOrder );
+                    return;
+                }
             }
+
         }
         while( ! allPacked );
     }
@@ -194,8 +217,6 @@ void LevelCuts(
         // success
         return;
     }
-
-
 }
 bool CS2LNW(
     cInstance& I,
@@ -245,7 +266,7 @@ bool CS2LNW(
     return allPacked;
 }
 
-bool CS2Pack2(
+void CS2Pack2(
     cInstance& I,
     cLevel& level, int h )
 {
@@ -295,7 +316,8 @@ bool CS2Pack2(
             */
             CutLevel(
                 I,
-                level );
+                level.myStock,
+                h + level.height() );
         }
 
         AllocateOrder(
@@ -309,7 +331,7 @@ bool CS2Pack2(
     if( ! packedCount )
     {
         std::cout << "nothing fit\n";
-        return false;
+        return;
     }
 
     // at least one order was cut for this stock
@@ -352,8 +374,6 @@ bool CS2Pack2(
         // add it to the instance cut list
         I.myCut.push_back( cut );
     }
-
-    return ( packedCount == level.size() );
 }
 
 void AllocateOrder(
@@ -376,13 +396,13 @@ void AllocateOrder(
 }
 void CutLevel(
     cInstance& I,
-    cLevel& level )
+    timber_t stock,
+    int h )
 {
-    timber_t stock = level.myStock;
 
-    stock->level( level.height() );
+    stock->level( h );
 
-    if( level.height() == stock->myHeight )
+    if( h == stock->myHeight )
     {
         //no need for a cut, we are at the top of the stock
         return;
@@ -390,8 +410,8 @@ void CutLevel(
     I.myCut.push_back( cCut(
                            stock,
                            'H',
-                           level.height(),
-                           level.height() ));
+                           h,
+                           h ));
 }
 
 void ReturnToInventory(
@@ -404,21 +424,12 @@ void ReturnToInventory(
             I.myStock.end(),
             [] ( timber_t t )
     {
-        std::cout << "remove? " <<t->isUsed() <<" " <<t->level() <<" "<<t->myHeight << "\n";
-        return( t->isUsed()  && t->level() == t->myHeight );
+        t->level( 0 );
+        t->used( false );
+        return( ! t->myHeight );
     } ),
     I.myStock.end() );
 
-    // adjust height of partially used stock
-    for( timber_t t : I.myStock )
-    {
-        if( ! t->isUsed() )
-            continue;
-
-        t->myHeight -= t->level();
-        t->level( 0 );
-        t->used( false );
-    }
 }
 void DisplayWastage( std::vector<cLevel>& levels )
 {

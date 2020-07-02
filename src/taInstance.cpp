@@ -3,6 +3,7 @@
 #include <sstream>
 #include <memory>
 #include <vector>
+#include <set>
 #include <algorithm>
 #include "TimberAllocation.h"
 
@@ -38,6 +39,7 @@ void cInstance::read(
             break;
         }
     }
+    isEveryIDUnique();
     Inventory.expandCount();
     expandCount();
 }
@@ -94,6 +96,39 @@ void cInstance::addUnpacked( timberv_t& unpacked )
     myUnpacked.insert(
         myUnpacked.end(),
         unpacked.begin(), unpacked.end() );
+}
+bool cInstance::isEveryIDUnique()
+{
+    std::set<std::string> IDset, dupIDset;
+    bool first = true;
+    for( timber_t t: myOrder )
+    {
+        if( ! IDset.insert( t->myUserID ).second )
+        {
+            if( dupIDset.insert( t->myUserID ).second )
+            {
+                if( first )
+                {
+                    std::cout << "Discarding duplicate IDs ( tid11 ):\n";
+                    first = false;
+                }
+                std::cout << t->myUserID << " ";
+            }
+        }
+    }
+
+    myOrder.erase(
+        remove_if(
+            myOrder.begin(),
+            myOrder.end(),
+            [&dupIDset] ( timber_t t )
+    {
+        return( dupIDset.find(t->myUserID) != dupIDset.end() );
+    } ),
+    myOrder.end() );
+
+    std::cout <<  "\n" << myOrder.size() << " unique order IDs\n";
+    return true;
 }
 }
 

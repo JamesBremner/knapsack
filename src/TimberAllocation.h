@@ -76,7 +76,7 @@ public:
 
     void used( bool f = true )
     {
-        myUsed = true;
+        myUsed = f;
     }
     bool isUsed() const
     {
@@ -93,6 +93,15 @@ public:
         return myLevel;
     }
 
+    void usedbyLevel( bool f )
+    {
+        myUsedbyLevel = f;
+    }
+    bool isUsedbyLevel()
+    {
+        return myUsedbyLevel;
+    }
+
     std::string myUserID;
     int myCount;
 
@@ -101,6 +110,7 @@ private:
     timber_t myStock;   // if an allocated order, the stock allocated to
     bool myUsed;        // true if a stock that haveen used to cut orders
     int myLevel;         // the location of the top of the highest level cut
+    bool myUsedbyLevel;  // true if stock has been allocated to current level
 };
 
 class cInventory
@@ -153,14 +163,18 @@ class cLevel
 public:
     timberv_t myOrder;      // orders
     timber_t  myStock;      // stock allocated to level
-    int myAreaUsed;
 
     cLevel()
         : myAreaUsed( 0 )
     {
 
     }
-    void removePacked();    // remove orders that have been packed
+
+    /** remove orders that have been packed
+        @return 0: none packed, 1: some packed, 2: all packed
+    */
+    int removePacked();
+
     std::string text() const;
     int height() const
     {
@@ -174,10 +188,16 @@ public:
     {
         myAreaUsed += order->myLength * order->myWidth;
     }
-    int wastage() const
-    {
-        return height() * ( myStock->myLength * myStock->myWidth - myAreaUsed );
-    }
+    /** Volume wasted when level cut from stock
+        @return volume wasted
+
+        This calculates wastage only for the currently stacked level
+        so this needs to be called for each stacked level
+    */
+    int wastage() const;
+
+private:
+    int myAreaUsed;
 };
 
 class cInstance
@@ -202,6 +222,14 @@ public:
     @param[in] tv vector of timbers
     */
     void expandCount();
+
+    /// Number of orders that could not fit
+    int unPackedCount() const
+    {
+        return (int)myUnpacked.size();
+    }
+
+    bool isEveryIDUnique();
 
     timberv_t myOrder;          /// the timbers that have to be delivered
 
@@ -280,7 +308,7 @@ bool CS2LNW(
     cLevel& level, int h );
 
 /// Use pack2 engine to do 2D level cutting
-bool CS2Pack2(
+void CS2Pack2(
     cInstance& I,
     cLevel& level, int h );
 
@@ -300,11 +328,13 @@ void AllocateOrder(
 
 /** Record the V cut for a level in the instance
     @param[in] I the instance
-    @param[in] level
+    @param[in] stock
+    @param[in] h height for cut at top of level
 */
 void CutLevel(
     cInstance& I,
-    cLevel& level );
+    timber_t stock,
+    int h );
 
 void ReturnToInventory(
     cInventory& I );
