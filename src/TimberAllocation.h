@@ -237,16 +237,46 @@ public:
     */
     void allocate( timber_t order, timber_t stock );
 
-    timberv_t myOrder;          /// the timbers that have to be delivered
+    void add( const cCut& cut )
+    {
+        myCut.push_back( cut );
+    }
+    int cutListSize() const
+    {
+        return (int)myCut.size();
+    }
+    /** cut position along orthogonal axis
+        @param[in] index of cut in cut list
+        @return position, -1 on error
+    */
+    int cutListPosition( int index )
+    {
+        if( 0 > index || index > (int)myCut.size() - 1 )
+            return -1;
+        return myCut[ index ].myLocation;
+    }
 
+    /// rotate, if neccesary, so L > W > H
+    void rotateLWH();
 
-    std::vector< cCut > myCut;
+    /// sort by height
+    void sortByHeight();
+
+    timberv_t& orders()
+    {
+        return myOrder;
+    }
 
 private:
 
-    timberv_t           myUnpacked;
+    timberv_t myOrder;          /// the timbers that have to be delivered
+
+    timberv_t           myUnpacked; /// orders that could not be met from the inventory
+
     std::vector<std::pair<timber_t,timber_t>>
-                          myAllocation;
+                                           myAllocation;         /// stock that order was cut from
+
+    std::vector< cCut > myCut;
 
     /// Parse a line in the instance file
     std::vector< int > ParseSpaceDelimited(

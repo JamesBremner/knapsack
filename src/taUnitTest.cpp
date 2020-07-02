@@ -36,9 +36,9 @@ TEST( tid9 )
     LevelCuts( I, levels, theInventory );
 
     // check cut count and positions
-    CHECK_EQUAL( 2, I.myCut.size() );
-    CHECK_EQUAL( 300, I.myCut[0].myLocation );
-    CHECK_EQUAL( 500, I.myCut[1].myLocation );
+    CHECK_EQUAL( 2, I.cutListSize() );
+    CHECK_EQUAL( 300, I.cutListPosition(0) );
+    CHECK_EQUAL( 500, I.cutListPosition(1) );
     CHECK_EQUAL( 0, I.unPackedCount() );
 }
 
@@ -74,12 +74,12 @@ TEST( twoLevels )
     //std::cout << I.textSolution();
 
     // check cut count and positions
-    CHECK_EQUAL( 5, I.myCut.size() );
-    CHECK_EQUAL( 200, I.myCut[0].myLocation );
-    CHECK_EQUAL( 300, I.myCut[1].myLocation );
-    CHECK_EQUAL( 500, I.myCut[2].myLocation );
-    CHECK_EQUAL( 300, I.myCut[3].myLocation );
-    CHECK_EQUAL( 500, I.myCut[4].myLocation );
+    CHECK_EQUAL( 5, I.cutListSize() );
+    CHECK_EQUAL( 200, I.cutListPosition(0) );
+    CHECK_EQUAL( 300, I.cutListPosition(1) );
+    CHECK_EQUAL( 500, I.cutListPosition(2) );
+    CHECK_EQUAL( 300, I.cutListPosition(3) );
+    CHECK_EQUAL( 500, I.cutListPosition(4) );
     CHECK_EQUAL( 0, I.unPackedCount() );
 }
 
@@ -115,12 +115,12 @@ TEST( shortStock )
     //std::cout << I.textSolution();
 
     // check cut count and positions
-    CHECK_EQUAL( 5, I.myCut.size() );
-    CHECK_EQUAL( 200, I.myCut[0].myLocation );
-    CHECK_EQUAL( 300, I.myCut[1].myLocation );
-    CHECK_EQUAL( 500, I.myCut[2].myLocation );
-    CHECK_EQUAL( 300, I.myCut[3].myLocation );
-    CHECK_EQUAL( 500, I.myCut[4].myLocation );
+    CHECK_EQUAL( 5, I.cutListSize() );
+    CHECK_EQUAL( 200, I.cutListPosition(0) );
+    CHECK_EQUAL( 300, I.cutListPosition(1) );
+    CHECK_EQUAL( 500, I.cutListPosition(2) );
+    CHECK_EQUAL( 300, I.cutListPosition(3) );
+    CHECK_EQUAL( 500, I.cutListPosition(4) );
     CHECK_EQUAL( 4, I.unPackedCount() );
 }
 
@@ -159,12 +159,12 @@ TEST( twoStock )
     //std::cout << I.textSolution();
 
     // check cut count and positions
-    CHECK_EQUAL( 8, I.myCut.size() );
-    CHECK_EQUAL( 200, I.myCut[0].myLocation );
-    CHECK_EQUAL( 300, I.myCut[1].myLocation );
-    CHECK_EQUAL( 500, I.myCut[2].myLocation );
-    CHECK_EQUAL( 300, I.myCut[3].myLocation );
-    CHECK_EQUAL( 500, I.myCut[4].myLocation );
+    CHECK_EQUAL( 8, I.cutListSize() );
+    CHECK_EQUAL( 200, I.cutListPosition(0) );
+    CHECK_EQUAL( 300, I.cutListPosition(1) );
+    CHECK_EQUAL( 500, I.cutListPosition(2) );
+    CHECK_EQUAL( 300, I.cutListPosition(3) );
+    CHECK_EQUAL( 500, I.cutListPosition(4) );
     CHECK_EQUAL( 0, I.unPackedCount() );
 }
 

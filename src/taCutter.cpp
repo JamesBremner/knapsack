@@ -22,25 +22,14 @@ std::string cCut::text()
 std::vector< cLevel >
 Levels( cInstance& I )
 {
-    timberv_t& order = I.myOrder;
+    I.rotateLWH();
 
-    // rotate, if neccesary, so L > W > H
-    for( auto t : order )
-    {
-        t->rotateLWH();
-    }
-
-    // sort by height
-    std::sort( order.begin(), order.end(),
-               []( timber_t a, timber_t b)
-    {
-        return a->myHeight < b->myHeight;
-    });
+    I.sortByHeight();
 
     // allocate items of same height to a level
     std::vector< cLevel > levels;
     int h_level = -1;
-    for( timber_t t : order )
+    for( timber_t t : I.orders() )
     {
         if( t->myHeight != h_level )
         {
@@ -79,8 +68,6 @@ LevelToStock(
     cLevel& level,
     timberv_t& stock )
 {
-    std::cout << "LevelToStock " << stock.size() << "\n";
-
     if( ! stock.size() )
         throw std::runtime_error("No stock");
 
@@ -260,7 +247,7 @@ bool CS2LNW(
                 loc,
                 h );
             //std::cout << cut.text() << "\n\n";
-            I.myCut.push_back( cut );
+            I.add( cut );
         }
 
         L -= t->myLength;
@@ -374,7 +361,7 @@ void CS2Pack2(
         //std::cout << cut.text() << "\n\n";
 
         // add it to the instance cut list
-        I.myCut.push_back( cut );
+        I.add( cut );
     }
 }
 
@@ -409,11 +396,11 @@ void CutLevel(
         //no need for a cut, we are at the top of the stock
         return;
     }
-    I.myCut.push_back( cCut(
-                           stock,
-                           'H',
-                           h,
-                           h ));
+    I.add( cCut(
+               stock,
+               'H',
+               h,
+               h ));
 }
 
 void ReturnToInventory(

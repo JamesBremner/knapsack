@@ -134,5 +134,20 @@ void cInstance::allocate( timber_t order, timber_t stock )
 {
     myAllocation.push_back( std::make_pair( order, stock ));
 }
+
+void cInstance::rotateLWH()
+{
+    for( auto t : myOrder )
+    {
+        t->rotateLWH();
+    }
+}
+void cInstance::sortByHeight() {
+    std::sort( myOrder.begin(), myOrder.end(),
+               []( timber_t a, timber_t b)
+    {
+        return a->myHeight < b->myHeight;
+    });
+}
 }
 
