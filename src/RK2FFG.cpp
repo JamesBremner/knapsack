@@ -67,7 +67,7 @@ bool RK2FFG(
                 return a.size_horiz() > b.size_horiz();
             });
         }
-        if( ! item.isPacked )
+        if( ! item.myPacked )
             allFitted = false;
     }
     return allFitted;

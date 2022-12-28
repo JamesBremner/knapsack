@@ -66,8 +66,8 @@ sPattern H3CS (
             itemv_t extra;
             for( auto& item : level )
             {
-                if( !item.isPacked ) {
-                    extra.pus_back( item );
+                if( !item.myPacked ) {
+                    extra.push_back( item );
                 }
             }
             theExtras.push_back( extra );

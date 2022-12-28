@@ -2,7 +2,7 @@
     from http://www.loco.ic.unicamp.br/files/instances/3duk/
     apply code Implemented from the psuedo code in
     Cintra GF, Miyazawa FK, Wakabayashi Y, Xavier EC. Algorithms for twodimensional cutting stock and strip packing problems using dynamic programming and column generation. European Journal of Operational Research
-2008;191:59–83
+2008;191:59ï¿½83
     algorithm 3: H3CS
 */
 
@@ -14,11 +14,11 @@
 
 int main( int argc, char* argv[] )
 {
-    std::cout << "DP3SUK\n";
+    std::cout << "H3CS\n";
 
     if( argc != 2 )
     {
-        std::cout << "Usage: DP3SUKInstance <path to instance file>\n";
+        std::cout << "Usage: H3CSInstance <path to instance file>\n";
         exit(1);
     }
 
