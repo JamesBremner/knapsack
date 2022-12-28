@@ -31,6 +31,19 @@ OBJ_H3CS = \
 	$(ODIR)/RK2FFG.o \
 	$(ODIR)/DDP.o 
 
+OBJ_DDPTest = \
+	$(ODIR)/DDPTest.o \
+	$(ODIR)/DP3UK.o \
+	$(ODIR)/knapsack.o \
+	$(ODIR)/DDP.o 	
+
+OBJ_DP3UKTest = \
+	$(ODIR)/DP3UKTest.o \
+	$(ODIR)/DP3UK.o \
+	$(ODIR)/knapsack.o \
+	$(ODIR)/RRP.o \
+	$(ODIR)/DDP.o 	
+
 ### COMPILE
 
 $(ODIR)/%.o: %.cpp  
@@ -41,20 +54,31 @@ $(ODIR)/%.o: %.cpp
 
 DP3UK: $(OBJ_DP3UK)
 	g++ -o bin/DP3UK.exe \
-	 $^ $(OPT)  \
+	$^ $(OPT)  \
 	$(static_link_flags) $(LIBS)
 
 DP3SUK: $(OBJ_DP3SUK)
 	g++ -o bin/DP3SUK.exe \
-	 $^ $(OPT)  \
+	$^ $(OPT)  \
 	$(static_link_flags) $(LIBS)
 
 H3CS: $(OBJ_H3CS)
 	g++ -o bin/H3CS.exe \
-	 $^ $(OPT)  \
+	$^ $(OPT)  \
+	$(static_link_flags) $(LIBS)
+
+DDPTest: $(OBJ_DDPTest)
+	g++ -o bin/DDPTest.exe \
+	$^ $(OPT)  \
+	$(static_link_flags) $(LIBS)
+
+DP3UKTest: $(OBJ_DP3UKTest)
+	g++ -o bin/DP3UKTest.exe \
+	$^ $(OPT)  \
 	$(static_link_flags) $(LIBS)
 
 .PHONY: clean
 clean:
 	del /q .vscode\\obj\\*.o
 
+rebuild_all: clean DP3UK DP3SUK H3CS DDPTest DP3UKTest

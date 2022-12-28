@@ -32,7 +32,7 @@ void test1()
     problem.item_values = { 5 };
 
     auto P = DP3UK(
-          l,w,h,
+        //   l,w,h,
           problem );
 
     std::cout << P.text() << "\n";
@@ -53,7 +53,7 @@ void test2()
     problem.item_values = { 5 };
 
     auto P = DP3UK(
-          l,w,h,
+        //   l,w,h,
           problem );
 
     std::cout << P.text() << "\n";
@@ -75,7 +75,7 @@ void test3()
     problem.item_values = { 1000, 1 };
 
     auto P = DP3UK(
-          l,w,h,
+        //   l,w,h,
           problem );
 
     std::cout << P.text() << "\n";
